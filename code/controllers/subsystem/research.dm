@@ -589,9 +589,10 @@ SUBSYSTEM_DEF(research)
 /datum/controller/subsystem/research/proc/on_node_researched(node_id)
 	if(!(node_id in pending_research_node_ids))
 		pending_research_node_ids += node_id
-	// Запрет обновления таймера во время его работы. Можно закомментить, чтобы сигнал отправлялся ТОЛЬКО после прохода таймера без изучений
-	//if(!isnull(research_batch_timer))
-	//	return
+	if(!isnull(research_batch_timer))	// Обнуление таймера при изучении нового научного нода в процессе упаковки
+		deltimer(research_batch_timer)
+		research_batch_timer = null
+		return
 
 	research_batch_timer = addtimer(CALLBACK(src, PROC_REF(process_research_batch)), RESEARCH_BATCH_DELAY, TIMER_STOPPABLE)
 

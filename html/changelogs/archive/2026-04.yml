@@ -268,3 +268,15 @@
       внутри, а не просто существует где-то в мире
   - code_imp: убран world-скан в can_close() у шкафчиков, больше не жрёт овертайм
       на каждом закрытии
+  - bugfix: в say/whisper больше не ломается отображение `&`, `<`, `>` и других HTML-символов
+      - раньше они вылезали в чат как `&amp;`, `&lt;`, `&gt;` из-за двойного экранирования.
+  - refactor: хелперы `parse_zone`, `ru_*_zone`, `ru_intent`, `ru_comms`, `uplink_to_ru_conversion`,
+      `backpack_to_ru_conversion` переписаны через static-списки вместо длинных `if/else`.
+  - code_imp: добавлены `html_encode_readable` и `finalize_stripped_input`, вореплейт
+      и `tgui_input/text` переведены на них.
+  Herobrine998:
+  - rscadd: В донатный лодаут добавлена новая сумка rawk
+  IO979996:
+  - bugfix: фикс ерп генокрада в динамик лайт
+  - bugfix: Теперь мелки призыва работают в динамик лайт
+  - bugfix: Теперь лазеры проходят сквозь стеклянные стены

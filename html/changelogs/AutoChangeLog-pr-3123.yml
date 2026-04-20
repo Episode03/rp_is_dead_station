@@ -1,0 +1,9 @@
+author: DuLL-FoX
+delete-after: true
+changes:
+  - bugfix: в say/whisper больше не ломается отображение `&`, `<`, `>` и других HTML-символов
+      - раньше они вылезали в чат как `&amp;`, `&lt;`, `&gt;` из-за двойного экранирования.
+  - refactor: хелперы `parse_zone`, `ru_*_zone`, `ru_intent`, `ru_comms`, `uplink_to_ru_conversion`,
+      `backpack_to_ru_conversion` переписаны через static-списки вместо длинных `if/else`.
+  - code_imp: добавлены `html_encode_readable` и `finalize_stripped_input`, вореплейт
+      и `tgui_input/text` переведены на них.

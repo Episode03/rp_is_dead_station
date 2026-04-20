@@ -15,6 +15,7 @@
 	var/department_tag = "Unidentified"			//used for material distribution among other things.
 	var/datum/techweb/stored_research
 	var/datum/techweb/host_research
+	var/last_design_count = 0	// Хранит предшествующее синхронизации количество доступных дизайнов
 
 	var/lathe_prod_time = 0.5
 	var/emag_only_access = TRUE
@@ -34,6 +35,12 @@
 	INVOKE_ASYNC(src, PROC_REF(update_research))
 	materials = AddComponent(/datum/component/remote_materials, "lathe", mapload, _after_insert=CALLBACK(src, PROC_REF(AfterMaterialInsert)))
 	RefreshParts()
+
+/obj/machinery/rnd/production/LateInitialize()
+	. = ..()
+	RegisterSignal(SSdcs, COMSIG_GLOB_RESEARCH_NODE_UNLOCKED, PROC_REF(on_node_unlocked))
+	RegisterSignal(SSdcs, COMSIG_GLOB_RESEARCH_BATCH_COMPLETE, PROC_REF(on_research_batch_complete))
+	last_design_count = length(cached_designs)	// В последнюю очередь, после всех инициализаций, фиксируется количество доступных дизайнов
 
 /obj/machinery/rnd/production/Destroy()
 	materials = null
@@ -416,3 +423,23 @@
 	for(var/n in D.min_security_level to D.max_security_level)
 		levels += NUM2SECLEVEL(n)
 	. += english_list(levels, and_text = ", ")
+
+/obj/machinery/rnd/production/proc/on_node_unlocked(datum/source, node_id)	// Дизайны обновляются после изучения ноды на консоли
+	SIGNAL_HANDLER
+	INVOKE_ASYNC(src, PROC_REF(update_research))
+
+/obj/machinery/rnd/production/proc/on_research_batch_complete(datum/source, list/node_ids)	// Регистрация сигнала завершения упаковки пакета нод
+	SIGNAL_HANDLER
+	INVOKE_ASYNC(src, PROC_REF(handle_research_batch_complete))
+
+/obj/machinery/rnd/production/proc/handle_research_batch_complete()	// Рабочая процедура расчёта и локального оповещения
+	var/new_count = length(cached_designs)
+	var/added = new_count - last_design_count
+	last_design_count = new_count
+	if(added <= 0)
+		return
+	audible_message(
+		message = "",
+		runechat_popup = TRUE,
+		rune_msg = "Синхронизация с базой изучений. Количество новых чертежей: [added]"
+	)

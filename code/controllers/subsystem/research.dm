@@ -13,6 +13,12 @@ SUBSYSTEM_DEF(research)
 	var/datum/techweb_node/error_node/error_node	//These two are what you get if a node/design is deleted and somehow still stored in a console.
 	var/datum/design/error_design/error_design
 
+	//BLUEMOON CHANGE
+	//Упаковка и отправка изученных научных нод
+	var/list/pending_research_node_ids = list()	//Упаковываемый пакет ID-шек
+	var/research_batch_timer
+	#define RESEARCH_BATCH_DELAY 10 SECONDS	// По окончанию таймера пакет ID-шек отправляется вместе с сигналом
+
 	//ERROR LOGGING
 	var/list/invalid_design_ids = list()		//associative id = number of times
 	var/list/invalid_node_ids = list()			//associative id = number of times
@@ -322,6 +328,8 @@ SUBSYSTEM_DEF(research)
 	error_design = new
 	error_node = new
 
+	RegisterSignal(SSdcs, COMSIG_GLOB_RESEARCH_BATCH_COMPLETE, PROC_REF(on_research_batch_signal))	// Регистрация сигнала отправки пакета изученных ID-шек
+
 	for(var/A in subtypesof(/obj/item/seeds))
 		var/obj/item/seeds/S = A
 		var/list/L = list()
@@ -576,3 +584,63 @@ SUBSYSTEM_DEF(research)
 			else
 				techweb_boost_items[path] = list(node.id = node.boost_item_paths[path])
 		CHECK_TICK
+
+// Начало упаковки ID-шек, вызывается процедурой /datum/techweb_node/proc/succesful_research
+/datum/controller/subsystem/research/proc/on_node_researched(node_id)
+	if(!(node_id in pending_research_node_ids))
+		pending_research_node_ids += node_id
+	// Запрет обновления таймера во время его работы. Можно закомментить, чтобы сигнал отправлялся ТОЛЬКО после прохода таймера без изучений
+	//if(!isnull(research_batch_timer))
+	//	return
+
+	research_batch_timer = addtimer(CALLBACK(src, PROC_REF(process_research_batch)), RESEARCH_BATCH_DELAY, TIMER_STOPPABLE)
+
+/datum/controller/subsystem/research/proc/process_research_batch()
+	research_batch_timer = null
+	var/list/nodes_to_process = pending_research_node_ids.Copy()
+	pending_research_node_ids.Cut()
+
+	if(!length(nodes_to_process))
+		return	// Нету ID-шек для сортировки
+	SEND_GLOBAL_SIGNAL(COMSIG_GLOB_RESEARCH_BATCH_COMPLETE, nodes_to_process)	// ID-шки научных нод упакованы
+
+/datum/controller/subsystem/research/proc/on_research_batch_signal(datum/source, list/node_ids)
+	SIGNAL_HANDLER
+	INVOKE_ASYNC(src, PROC_REF(handle_research_batch_announcement), node_ids)
+
+/datum/controller/subsystem/research/proc/handle_research_batch_announcement(list/node_ids)	// Логика рассылки оповещений по отделам
+	var/obj/machinery/announcement_system/AAS = locate() in GLOB.announcement_systems	// Проверка существующей системы оповещений в мире
+	if(!AAS)
+		return
+
+	var/list/departmental_announcements = list()
+	for(var/node_id in node_ids)	// Проверка отделов, привязанных к нодам в списке
+		var/datum/techweb_node/node = techweb_node_by_id(node_id)
+		if(!node || !length(node.assigned_departments))
+			continue
+		for(var/dept in node.assigned_departments)	// Сортировка изученных нод по привязанным к ним отделам
+			if(!departmental_announcements[dept])
+				departmental_announcements[dept] = list()
+			departmental_announcements[dept] += node.display_name
+
+	for(var/dept in departmental_announcements)
+		var/list/names = departmental_announcements[dept]
+		var/message = format_research_announcement(names)
+		var/channel = department_to_radio_channel(dept)	// Вызов кастомного хелпера, превращающего словесное название отдела в канал
+		if(channel && length(message))
+			AAS.radio?.talk_into(AAS, message, channel)
+
+/proc/format_research_announcement(list/names)	// Процедура форматировки строки уведомления
+	var/count = length(names)
+	if(count == 0)
+		return null
+	if(count == 1)
+		return "Обновление базы данных. Получена технология: '[names[1]]'"
+	if(count == 2)
+		return "Обновление базы данных. Получены технологии: '[names[1]]' и '[names[2]]'."
+	else
+		var/string = "Обновление базы данных. Получены технологии: "
+		for(var/i in 1 to count-1)
+			string += "'[names[i]]', "
+		string += "'[names[count]]'."
+		return string

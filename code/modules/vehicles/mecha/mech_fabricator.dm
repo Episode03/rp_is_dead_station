@@ -80,6 +80,11 @@
 	RefreshParts() //Recalculating local material sizes if the fab isn't linked
 	return ..()
 
+/obj/machinery/mecha_part_fabricator/LateInitialize()
+	. = ..()
+	RegisterSignal(SSdcs, COMSIG_GLOB_RESEARCH_NODE_UNLOCKED, PROC_REF(on_node_unlocked))
+	RegisterSignal(SSdcs, COMSIG_GLOB_RESEARCH_BATCH_COMPLETE, PROC_REF(on_research_batch_complete))
+
 /obj/machinery/mecha_part_fabricator/Destroy()
 	QDEL_NULL(stored_research)
 	rmat = null
@@ -520,6 +525,43 @@
 
 	say("Unable to connect to local R&D server.")
 	return
+
+/obj/machinery/mecha_part_fabricator/proc/on_node_unlocked(datum/source, node_id)	// Дизайны обновляются после изучения ноды на консоли
+	SIGNAL_HANDLER
+	INVOKE_ASYNC(src, PROC_REF(auto_sync_research_base))
+
+/obj/machinery/mecha_part_fabricator/proc/auto_sync_research_base()	// Зеркальная копия процедуры обновления дизайнов, но без вербов say()
+	for(var/obj/machinery/computer/rdconsole/RDC in orange(7,src))
+		RDC.stored_research.copy_research_to(stored_research)
+		update_static_data_for_all_viewers()
+		return
+	return
+
+/obj/machinery/mecha_part_fabricator/proc/on_research_batch_complete(datum/source, list/node_ids)	// Регистрация сигнала о завершении упаковки пакета ID-шек
+	SIGNAL_HANDLER
+	INVOKE_ASYNC(src, PROC_REF(handle_research_batch_complete), node_ids)
+
+/obj/machinery/mecha_part_fabricator/proc/handle_research_batch_complete(list/node_ids)
+	var/list/new_designs = list()
+	for(var/node_id in node_ids)
+		var/datum/techweb_node/node = SSresearch.techweb_node_by_id(node_id)	// Проверка существования нод, привязанных к полученному ID
+		if(!node)
+			continue
+		for(var/design_id in node.design_ids)
+			var/datum/design/D = SSresearch.techweb_design_by_id(design_id)
+			if(!D || !(D.build_type & MECHFAB))	// Фильтрация полученных в пакете дизайнов по флагу MECHFAB
+				continue
+			new_designs |= D.id
+
+	var/added = length(new_designs)
+	if(added <= 0)
+		return
+
+	audible_message(
+		message = "",
+		runechat_popup = TRUE,
+		rune_msg = "Синхронизация с базой изучений. Количество новых чертежей: [added]"
+	)
 
 /**
   * Calculates the coefficient-modified resource cost of a single material component of a design's recipe.

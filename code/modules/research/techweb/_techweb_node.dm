@@ -16,6 +16,7 @@
 	var/autounlock_by_boost = TRUE			//boosting this will autounlock this node.
 	var/list/research_costs = list()		//Point cost to research. type = amount
 	var/category = "Misc"				//Category
+	var/list/assigned_departments = list() //Список отделов, затрагиваемых технологией
 
 /datum/techweb_node/error_node
 	id = "ERROR"
@@ -93,6 +94,9 @@
 		return actual_costs
 	else
 		return research_costs
+
+/datum/techweb_node/proc/succesful_research(atom/research_source) // Вызывает процедуру при изучении нода
+	SSresearch.on_node_researched(src.id)
 
 //Base Nodes, everything starts from here.
 

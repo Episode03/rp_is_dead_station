@@ -2,6 +2,7 @@
 	id = "mecha_savannah_ivanov"
 	display_name = "EXOSUIT: Savannah-Ivanov"
 	description = "Savannah-Ivanov exosuit designs"
+	assigned_departments = list("Science")
 	prereq_ids = list("adv_mecha", "weaponry", "exp_tools")
 	design_ids = list(
 		"savannah_ivanov_chassis",

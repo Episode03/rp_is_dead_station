@@ -31,3 +31,20 @@
 	while((freq_to_check == 0) || ("[freq_to_check]" in GLOB.reverseradiochannels))
 
 	return freq_to_check
+
+/// Миниатюрная прооцедура конвертации названия отдела в канал радио
+/proc/department_to_radio_channel(department)
+	switch(department)
+		if("Security")
+			return RADIO_CHANNEL_SECURITY
+		if("Engineering")
+			return RADIO_CHANNEL_ENGINEERING
+		if("Science")
+			return RADIO_CHANNEL_SCIENCE
+		if("Medical")
+			return RADIO_CHANNEL_MEDICAL
+		if("Supply")
+			return RADIO_CHANNEL_SUPPLY
+		if("Service")
+			return RADIO_CHANNEL_SERVICE
+	return null

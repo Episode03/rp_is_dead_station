@@ -1,0 +1,4 @@
+author: Herobrine998
+delete-after: true
+changes:
+  - rscadd: В КК теперь техфабы не будут проверять доступ (если включат в конфиге)

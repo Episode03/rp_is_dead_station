@@ -16,7 +16,7 @@
 	id = "adv_engi"
 	display_name = "Advanced Engineering"
 	description = "Pushing the boundaries of physics, one chainsaw-fist at a time."
-	assigned_departments = list("Science", "Medical", "Security", "Service")
+	assigned_departments = list("Engineering")
 	prereq_ids = list("engineering", "emp_basic")
 	design_ids = list("engine_goggles", "magboots", "forcefield_projector", "weldingmask" , "rcd_loaded", "rpd",
 	"rcd_upgrade_frames", "rcd_upgrade_simple_circuits", "rcd_ammo_large", "sheetifier")

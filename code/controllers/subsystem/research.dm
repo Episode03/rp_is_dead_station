@@ -592,7 +592,6 @@ SUBSYSTEM_DEF(research)
 	if(!isnull(research_batch_timer))	// Обнуление таймера при изучении нового научного нода в процессе упаковки
 		deltimer(research_batch_timer)
 		research_batch_timer = null
-		return
 
 	research_batch_timer = addtimer(CALLBACK(src, PROC_REF(process_research_batch)), RESEARCH_BATCH_DELAY, TIMER_STOPPABLE)
 

@@ -26,6 +26,11 @@
 	var/const/cooldown_say_time = 1.5 SECONDS
 	var/const/max_build_amount = 60 // Отвечает за максимум в кнопке [Max: XXX] TGUI и максимум пердметов на печать в 1 пачке
 
+
+	vocal_pitch = 0.8
+	vocal_speed = 4
+	vocal_volume = 15
+
 /obj/machinery/rnd/production/Initialize(mapload)
 	. = ..()
 	create_reagents(0, OPENCONTAINER | NO_REACT)
@@ -35,12 +40,9 @@
 	INVOKE_ASYNC(src, PROC_REF(update_research))
 	materials = AddComponent(/datum/component/remote_materials, "lathe", mapload, _after_insert=CALLBACK(src, PROC_REF(AfterMaterialInsert)))
 	RefreshParts()
-
-/obj/machinery/rnd/production/LateInitialize()
-	. = ..()
 	RegisterSignal(SSdcs, COMSIG_GLOB_RESEARCH_NODE_UNLOCKED, PROC_REF(on_node_unlocked))
 	RegisterSignal(SSdcs, COMSIG_GLOB_RESEARCH_BATCH_COMPLETE, PROC_REF(on_research_batch_complete))
-	last_design_count = length(cached_designs)	// В последнюю очередь, после всех инициализаций, фиксируется количество доступных дизайнов
+	last_design_count = length(cached_designs)	// В последнюю очередь фиксируется количество доступных дизайнов на момент инициализации
 
 /obj/machinery/rnd/production/Destroy()
 	materials = null
@@ -438,8 +440,4 @@
 	last_design_count = new_count
 	if(added <= 0)
 		return
-	audible_message(
-		message = "",
-		runechat_popup = TRUE,
-		rune_msg = "Синхронизация с базой изучений. Количество новых чертежей: [added]"
-	)
+	say("Синхронизация с базой изучений. Количество новых чертежей: [added]")

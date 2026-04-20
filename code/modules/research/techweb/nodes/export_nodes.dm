@@ -17,6 +17,6 @@
 	display_name = "Advanced Bottling"
 	prereq_ids = list("blueprinted_bottles")
 	description = "New bottles for printing, storage and selling."
-	assigned_departments = list("Service")
+	informing_radio_channels = list(RADIO_CHANNEL_SERVICE)
 	design_ids = list("minikeg", "blooddrop", "slim_gold", "white_bloodmoon", "greenroad", "emptyglassbottle", "largeemptyglassbottle", "emptypitcher")
 	research_costs = list(TECHWEB_POINT_TYPE_GENERIC = 250)

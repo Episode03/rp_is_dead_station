@@ -160,8 +160,7 @@ Nothing else in the console has ID requirements.
 		if(stored_research == SSresearch.science_tech)
 			SSblackbox.record_feedback("associative", "science_techweb_unlock", 1, list("id" = "[id]", "name" = TN.display_name, "price" = "[json_encode(price)]", "time" = SQLtime()))
 		if(stored_research.research_node_id(id))
-			var/datum/techweb_node/researched_node = SSresearch.techweb_node_by_id(id)
-			researched_node.succesful_research(src)	// Процедура упаковки нод
+			SSresearch.on_node_researched(id)	// Отправка id на упаковку
 			SEND_GLOBAL_SIGNAL(COMSIG_GLOB_RESEARCH_NODE_UNLOCKED, id)	// Запрос синхронизации печатной машинерии с облаком
 			say("Successfully researched [TN.display_name].")
 			var/logname = "Unknown"

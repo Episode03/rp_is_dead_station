@@ -73,17 +73,19 @@
 
 	var/on_station = TRUE
 
+	vocal_bark_id = "bottalk1"
+	vocal_pitch = 1.3
+	vocal_speed = 6
+	vocal_volume = 20
+
 /obj/machinery/mecha_part_fabricator/Initialize(mapload)
 	stored_research = new
 	rmat = AddComponent(/datum/component/remote_materials, "mechfab", mapload && link_on_init, _after_insert=CALLBACK(src, PROC_REF(AfterMaterialInsert)))
 	on_station = is_station_level(z) || is_mining_level(z)
 	RefreshParts() //Recalculating local material sizes if the fab isn't linked
-	return ..()
-
-/obj/machinery/mecha_part_fabricator/LateInitialize()
-	. = ..()
 	RegisterSignal(SSdcs, COMSIG_GLOB_RESEARCH_NODE_UNLOCKED, PROC_REF(on_node_unlocked))
 	RegisterSignal(SSdcs, COMSIG_GLOB_RESEARCH_BATCH_COMPLETE, PROC_REF(on_research_batch_complete))
+	return ..()
 
 /obj/machinery/mecha_part_fabricator/Destroy()
 	QDEL_NULL(stored_research)
@@ -511,31 +513,29 @@
   * Syncs machine with R&D servers.
   *
   * Requires an R&D Console visible within 7 tiles. Copies techweb research. Updates tgui's state data.
+  * ignore_timer - при значении TRUE синхронизирует дизайны в обход таймера
+  * is_silent - при значении TRUE пропускает say()
   */
-/obj/machinery/mecha_part_fabricator/proc/sync()
-	if(!COOLDOWN_FINISHED(src, cooldown_say))
-		return
-	COOLDOWN_START(src, cooldown_say, cooldown_say_time)
+/obj/machinery/mecha_part_fabricator/proc/sync(ignore_timer = FALSE, is_silent = FALSE)
+	if(!ignore_timer)
+		if(!COOLDOWN_FINISHED(src, cooldown_say))
+			return
+		COOLDOWN_START(src, cooldown_say, cooldown_say_time)
 
 	for(var/obj/machinery/computer/rdconsole/RDC in orange(7,src))
 		RDC.stored_research.copy_research_to(stored_research)
 		update_static_data_for_all_viewers()
-		say("Successfully synchronized with R&D server.")
+		if(!is_silent)
+			say("Successfully synchronized with R&D server.")
 		return
 
-	say("Unable to connect to local R&D server.")
+	if(!is_silent)
+		say("Unable to connect to local R&D server.")
 	return
 
 /obj/machinery/mecha_part_fabricator/proc/on_node_unlocked(datum/source, node_id)	// Дизайны обновляются после изучения ноды на консоли
 	SIGNAL_HANDLER
-	INVOKE_ASYNC(src, PROC_REF(auto_sync_research_base))
-
-/obj/machinery/mecha_part_fabricator/proc/auto_sync_research_base()	// Зеркальная копия процедуры обновления дизайнов, но без вербов say()
-	for(var/obj/machinery/computer/rdconsole/RDC in orange(7,src))
-		RDC.stored_research.copy_research_to(stored_research)
-		update_static_data_for_all_viewers()
-		return
-	return
+	INVOKE_ASYNC(src, PROC_REF(sync), TRUE, TRUE)	// is_silent и ignore_timer установлены на TRUE для нужд системы автоматической синхронизации
 
 /obj/machinery/mecha_part_fabricator/proc/on_research_batch_complete(datum/source, list/node_ids)	// Регистрация сигнала о завершении упаковки пакета ID-шек
 	SIGNAL_HANDLER
@@ -557,11 +557,7 @@
 	if(added <= 0)
 		return
 
-	audible_message(
-		message = "",
-		runechat_popup = TRUE,
-		rune_msg = "Синхронизация с базой изучений. Количество новых чертежей: [added]"
-	)
+	say("Синхронизация с базой изучений. Количество новых чертежей: [added]")
 
 /**
   * Calculates the coefficient-modified resource cost of a single material component of a design's recipe.

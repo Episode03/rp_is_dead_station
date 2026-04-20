@@ -1,3 +1,4 @@
+#define RESEARCH_BATCH_DELAY 10 SECONDS	// По окончанию этого таймера пакет ID-шек отправляется с сигналом COMSIG_GLOB_RESEARCH_BATCH_COMPLETE
 
 SUBSYSTEM_DEF(research)
 	name = "Research"
@@ -17,7 +18,6 @@ SUBSYSTEM_DEF(research)
 	//Упаковка и отправка изученных научных нод
 	var/list/pending_research_node_ids = list()	//Упаковываемый пакет ID-шек
 	var/research_batch_timer
-	#define RESEARCH_BATCH_DELAY 10 SECONDS	// По окончанию таймера пакет ID-шек отправляется вместе с сигналом
 
 	//ERROR LOGGING
 	var/list/invalid_design_ids = list()		//associative id = number of times
@@ -609,38 +609,27 @@ SUBSYSTEM_DEF(research)
 	INVOKE_ASYNC(src, PROC_REF(handle_research_batch_announcement), node_ids)
 
 /datum/controller/subsystem/research/proc/handle_research_batch_announcement(list/node_ids)	// Логика рассылки оповещений по отделам
-	var/obj/machinery/announcement_system/AAS = locate() in GLOB.announcement_systems	// Проверка существующей системы оповещений в мире
+	var/obj/machinery/announcement_system/AAS = null
+	for(var/obj/machinery/announcement_system/S in GLOB.announcement_systems)
+		if(is_station_level(S.z) && S.is_operational())	// Проверка существующей на уровне станции рабочей системы оповещений
+			AAS = S
+			break
 	if(!AAS)
 		return
 
 	var/list/departmental_announcements = list()
 	for(var/node_id in node_ids)	// Проверка отделов, привязанных к нодам в списке
 		var/datum/techweb_node/node = techweb_node_by_id(node_id)
-		if(!node || !length(node.assigned_departments))
+		if(!node || !length(node.informing_radio_channels))
 			continue
-		for(var/dept in node.assigned_departments)	// Сортировка изученных нод по привязанным к ним отделам
-			if(!departmental_announcements[dept])
-				departmental_announcements[dept] = list()
-			departmental_announcements[dept] += node.display_name
+		for(var/channel in node.informing_radio_channels)	// Сортировка изученных нод по привязанным к ним отделам
+			if(!departmental_announcements[channel])
+				departmental_announcements[channel] = list()
+			departmental_announcements[channel] += node.display_name
 
-	for(var/dept in departmental_announcements)
-		var/list/names = departmental_announcements[dept]
-		var/message = format_research_announcement(names)
-		var/channel = department_to_radio_channel(dept)	// Вызов кастомного хелпера, превращающего словесное название отдела в канал
-		if(channel && length(message))
-			AAS.radio?.talk_into(AAS, message, channel)
+	for(var/channel in departmental_announcements)
+		var/list/names = departmental_announcements[channel]
+		var/message = length(names) ? "Обновление базы данных. Получен[length(names) >= 2 ? "ы" : "а"] технологи[length(names) >= 2 ? "и" : "я"]: [english_list(names)]" : null
+		AAS.radio?.talk_into(AAS, message, channel)
 
-/proc/format_research_announcement(list/names)	// Процедура форматировки строки уведомления
-	var/count = length(names)
-	if(count == 0)
-		return null
-	if(count == 1)
-		return "Обновление базы данных. Получена технология: '[names[1]]'"
-	if(count == 2)
-		return "Обновление базы данных. Получены технологии: '[names[1]]' и '[names[2]]'."
-	else
-		var/string = "Обновление базы данных. Получены технологии: "
-		for(var/i in 1 to count-1)
-			string += "'[names[i]]', "
-		string += "'[names[count]]'."
-		return string
+#undef RESEARCH_BATCH_DELAY

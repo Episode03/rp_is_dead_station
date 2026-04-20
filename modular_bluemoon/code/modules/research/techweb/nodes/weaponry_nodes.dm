@@ -13,7 +13,7 @@
 	id = "e45_drum"
 	display_name = "Enlarged ammunition storage"
 	description = "When situation requires more then 12 shots."
-	assigned_departments = list("Security")
+	informing_radio_channels = list(RADIO_CHANNEL_SECURITY)
 	prereq_ids = list("advc45_ammo")
 	design_ids = list("e45_drum", "e45_drum_empty", "e45_drum_taser", "e45_drum_lethal", "e45_drum_hydra", "e45_drum_ion", "e45_drum_stun", "e45_drum_laser", "e45_drum_hot", /*"e45_drum_trac"*/)
 	research_costs = list(TECHWEB_POINT_TYPE_GENERIC = 7500)
@@ -23,7 +23,7 @@
 	id = "advanced_weaponry"
 	display_name = "advanced weaponry theory"
 	description = "Impresive new technoligies, just in theory."
-	assigned_departments = list("Security")
+	informing_radio_channels = list(RADIO_CHANNEL_SECURITY)
 	prereq_ids = list("adv_weaponry")
 	research_costs = list(TECHWEB_POINT_TYPE_GENERIC = 2500)
 	hidden = TRUE // Оставляю пустую ноду на будущие, буду использовать эту отправную точку для всех новых улучшений
@@ -48,7 +48,7 @@
 	id = "mk60"
 	display_name = "Advanced guidance systems."
 	description = "Replacing the bolt carrier with an improved one with a pre-installed collimator sight."
-	assigned_departments = list("Security")
+	informing_radio_channels = list(RADIO_CHANNEL_SECURITY)
 	design_ids = list("mk60")
 	prereq_ids = list("advanced_weaponry", "adv_weaponry")
 	research_costs = list(TECHWEB_POINT_TYPE_GENERIC = 7500)
@@ -57,7 +57,7 @@
 	id = "mk62"
 	display_name = "Advanced gas extraction system."
 	description = "Replacing the receiver, which converts the enforcer from a pistol to a submachine gun."
-	assigned_departments = list("Security")
+	informing_radio_channels = list(RADIO_CHANNEL_SECURITY)
 	design_ids = list("mk62")
 	prereq_ids = list("mk60")
 	research_costs = list(TECHWEB_POINT_TYPE_GENERIC = 10000)
@@ -66,7 +66,7 @@
 	id = "vector"
 	display_name = "Advanced gas extraction system."
 	description = "A gift from Ligt Gear & Balistic Tech. Mostly - just whole new gun in a pack."
-	assigned_departments = list("Security")
+	informing_radio_channels = list(RADIO_CHANNEL_SECURITY)
 	design_ids = list("vector")
 	prereq_ids = list("mk60")
 	research_costs = list(TECHWEB_POINT_TYPE_GENERIC = 10000)
@@ -79,7 +79,7 @@
 	id = "mws01_basic"
 	display_name = "MWS-01 Ammunition"
 	description = "Базовая аммуниция адаптивного оружия MWS-01 в виде батарей и магазина-порта к ним."
-	assigned_departments = list("Security")
+	informing_radio_channels = list(RADIO_CHANNEL_SECURITY)
 	design_ids = list("mws01_battery_mag", "mws01_battery_lethal", "mws01_battery_disabler", "mws01_battery_taser")
 	prereq_ids = list("adv_weaponry")
 	research_costs = list(TECHWEB_POINT_TYPE_GENERIC = 4000)
@@ -88,7 +88,7 @@
 	id = "mws01_adv"
 	display_name = "MWS-01 Advanced Batteries"
 	description = "Продвинутые боеприпасы для модульного оружия корпуса Синих Щитов."
-	assigned_departments = list("Security")
+	informing_radio_channels = list(RADIO_CHANNEL_SECURITY)
 	design_ids = list("mws01_battery_ion", "mws01_battery_xray")
 	prereq_ids = list("mws01_basic", "radioactive_weapons", "electronic_weapons")
 	research_costs = list(TECHWEB_POINT_TYPE_GENERIC = 2500)

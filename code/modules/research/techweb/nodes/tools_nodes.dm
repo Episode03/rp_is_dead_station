@@ -4,7 +4,7 @@
 	id = "basic_tools"
 	display_name = "Basic Tools"
 	description = "Basic mechanical, electronic, surgical and botanical tools."
-	assigned_departments = list("Science", "Engineering")
+	informing_radio_channels = list(RADIO_CHANNEL_SCIENCE, RADIO_CHANNEL_ENGINEERING)
 	prereq_ids = list("base")
 	design_ids = list("screwdriver", "wrench", "bolter_wrench", "wirecutters", "crowbar", "multitool", "welding_tool", "tscanner", "dirtscanner", "analyzer", "geigercounter", "pipe_painter", "airlock_painter", "decal_painter", "tile_sprayer", "drapes", "scalpel", "circular_saw", "surgicaldrill", "bonesetter", "bloodfilter", "retractor", "cautery", "hemostat", "cultivator", "plant_analyzer", "shovel", "spade", "hatchet", "mop", "broom", "normtrash", "spraycan")
 	research_costs = list(TECHWEB_POINT_TYPE_GENERIC = 500)
@@ -13,7 +13,7 @@
 	id = "basic_mining"
 	display_name = "Mining Technology"
 	description = "Better than Efficiency V."
-	assigned_departments = list("Supply")
+	informing_radio_channels = list(RADIO_CHANNEL_SUPPLY)
 	prereq_ids = list("engineering", "basic_plasma")
 	design_ids = list("drill", "superresonator", "triggermod", "damagemod", "cooldownmod", "rangemod", "ore_redemption", "mining_equipment_vendor", "cargoexpress", "plasmacutter")//e a r l y    g a  m e)
 	research_costs = list(TECHWEB_POINT_TYPE_GENERIC = 2500)
@@ -22,7 +22,7 @@
 	id = "adv_mining"
 	display_name = "Advanced Mining Technology"
 	description = "Efficiency Level 127"	//dumb mc references
-	assigned_departments = list("Supply")
+	informing_radio_channels = list(RADIO_CHANNEL_SUPPLY)
 	prereq_ids = list("basic_mining", "adv_engi", "adv_power", "adv_plasma")
 	design_ids = list("drill_diamond", "hypermod", "plasmacutter_adv", "ore_silo", "plasteel_pick", "titanium_pick") // BLUEMOON убран айди jackhammer: перенесён в вендомат шахты.
 	research_costs = list(TECHWEB_POINT_TYPE_GENERIC = 2500)
@@ -31,7 +31,7 @@
 	id = "janitor"
 	display_name = "Advanced Sanitation Technology"
 	description = "Clean things better, faster, stronger, and harder!"
-	assigned_departments = list("Service")
+	informing_radio_channels = list(RADIO_CHANNEL_SERVICE)
 	prereq_ids = list("basic_tools", "adv_engi") // BLUEMOON ADD basic_tools for order consistency
 	design_ids = list("advmop", "advbroom", "buffer", "vacuum", "light_replacer", "spraybottle", "beartrap", "ci-janitor", "paint_remover", "adv_mop_charge", "adv_mop_light", "adv_mop_capacity")
 	research_costs = list(TECHWEB_POINT_TYPE_GENERIC = 1750) // No longer has its bag
@@ -40,7 +40,7 @@
 	id = "botany"
 	display_name = "Botanical Engineering"
 	description = "Botanical tools."
-	assigned_departments = list("Service")
+	informing_radio_channels = list(RADIO_CHANNEL_SERVICE)
 	prereq_ids = list("adv_engi", "biotech")
 	design_ids = list("diskplantgene", "portaseeder", "plantgenes", "flora_gun", "hydro_tray", "biogenerator", "seed_extractor", "autoloom")
 	research_costs = list(TECHWEB_POINT_TYPE_GENERIC = 2750)
@@ -49,7 +49,7 @@
 	id = "exp_tools"
 	display_name = "Experimental Tools"
 	description = "Highly advanced construction tools."
-	assigned_departments = list("Science", "Engineering")
+	informing_radio_channels = list(RADIO_CHANNEL_SCIENCE, RADIO_CHANNEL_ENGINEERING)
 	design_ids = list("exwelder", "jawsoflife", "handdrill", "holosigncombifan", "ranged_analyzer", "tricorder", "handdrillsci", "jawsoflifesci")
 	prereq_ids = list("basic_tools", "adv_engi") // BLUEMOON ADD basic_tools for order consistency
 	research_costs = list(TECHWEB_POINT_TYPE_GENERIC = 2750)
@@ -58,7 +58,7 @@
 	id = "sec_basic"
 	display_name = "Basic Security Equipment"
 	description = "Standard equipment used by security."
-	assigned_departments = list("Security")
+	informing_radio_channels = list(RADIO_CHANNEL_SECURITY)
 	design_ids = list("seclite", "pepperspray", "bola_energy", "body_camera", "zipties", "evidencebag")
 	prereq_ids = list("base")
 	research_costs = list(TECHWEB_POINT_TYPE_GENERIC = 750)

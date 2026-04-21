@@ -44,6 +44,7 @@
 	RegisterSignal(SSdcs, COMSIG_GLOB_RESEARCH_BATCH_COMPLETE, PROC_REF(on_research_batch_complete))
 
 /obj/machinery/rnd/production/Destroy()
+	UnregisterSignal(SSdcs, list(COMSIG_GLOB_RESEARCH_NODE_UNLOCKED, COMSIG_GLOB_RESEARCH_BATCH_COMPLETE))
 	materials = null
 	cached_designs = null
 	QDEL_NULL(stored_research)

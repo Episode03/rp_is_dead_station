@@ -88,6 +88,7 @@
 	return ..()
 
 /obj/machinery/mecha_part_fabricator/Destroy()
+	UnregisterSignal(SSdcs, list(COMSIG_GLOB_RESEARCH_NODE_UNLOCKED, COMSIG_GLOB_RESEARCH_BATCH_COMPLETE))
 	QDEL_NULL(stored_research)
 	rmat = null
 	return ..()
@@ -542,6 +543,9 @@
 	INVOKE_ASYNC(src, PROC_REF(handle_research_batch_complete), node_ids)
 
 /obj/machinery/mecha_part_fabricator/proc/handle_research_batch_complete(list/node_ids)
+	if(!stored_research || !stored_research.researched_designs)
+		return
+
 	var/list/new_designs = list()
 	for(var/node_id in node_ids)
 		var/datum/techweb_node/node = SSresearch.techweb_node_by_id(node_id)	// Проверка существования нод, привязанных к полученному ID
@@ -551,12 +555,12 @@
 			var/datum/design/D = SSresearch.techweb_design_by_id(design_id)
 			if(!D || !(D.build_type & MECHFAB))	// Фильтрация полученных в пакете дизайнов по флагу MECHFAB
 				continue
-			if(!stored_research?.researched_designs?[D.id])
+			if(!stored_research.researched_designs[D.id])
 				continue
 			new_designs |= D.id
 
 	var/added = length(new_designs)
-	if(added <= 0)
+	if(!added)
 		return
 
 	say("Синхронизация с базой изучений. Количество новых чертежей: [added]")

@@ -42,7 +42,6 @@
 	RefreshParts()
 	RegisterSignal(SSdcs, COMSIG_GLOB_RESEARCH_NODE_UNLOCKED, PROC_REF(on_node_unlocked))
 	RegisterSignal(SSdcs, COMSIG_GLOB_RESEARCH_BATCH_COMPLETE, PROC_REF(on_research_batch_complete))
-	// last_design_count = length(cached_designs)	// В последнюю очередь фиксируется количество доступных дизайнов на момент инициализации
 
 /obj/machinery/rnd/production/Destroy()
 	materials = null

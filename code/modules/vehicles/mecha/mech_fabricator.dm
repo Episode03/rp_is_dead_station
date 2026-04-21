@@ -535,7 +535,7 @@
 
 /obj/machinery/mecha_part_fabricator/proc/on_node_unlocked(datum/source, node_id)	// Дизайны обновляются после изучения ноды на консоли
 	SIGNAL_HANDLER
-	INVOKE_ASYNC(src, PROC_REF(sync), TRUE, TRUE)	// is_silent и ignore_timer установлены на TRUE для нужд системы автоматической синхронизации
+	INVOKE_ASYNC(src, PROC_REF(sync), TRUE, TRUE)	// ignore_timer = TRUE; Is_silent = TRUE
 
 /obj/machinery/mecha_part_fabricator/proc/on_research_batch_complete(datum/source, list/node_ids)	// Регистрация сигнала о завершении упаковки пакета ID-шек
 	SIGNAL_HANDLER
@@ -550,6 +550,8 @@
 		for(var/design_id in node.design_ids)
 			var/datum/design/D = SSresearch.techweb_design_by_id(design_id)
 			if(!D || !(D.build_type & MECHFAB))	// Фильтрация полученных в пакете дизайнов по флагу MECHFAB
+				continue
+			if(!stored_research?.researched_designs?[D.id])
 				continue
 			new_designs |= D.id
 

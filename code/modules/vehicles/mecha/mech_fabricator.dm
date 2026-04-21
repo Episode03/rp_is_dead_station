@@ -543,7 +543,7 @@
 	INVOKE_ASYNC(src, PROC_REF(handle_research_batch_complete), node_ids)
 
 /obj/machinery/mecha_part_fabricator/proc/handle_research_batch_complete(list/node_ids)
-	if(!stored_research || !stored_research.researched_designs)
+	if(!stored_research || !LAZYLEN(stored_research.researched_designs))
 		return
 
 	var/list/new_designs = list()

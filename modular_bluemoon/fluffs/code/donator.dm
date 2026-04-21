@@ -2181,6 +2181,12 @@
 	path = /obj/item/clothing/neck/cloak/ftu
 	ckeywhitelist = list("fanlexa", "kosep", "dragoncora")
 
+/datum/gear/donator/bm/binary_cloak
+	name = "Binary Cloak"
+	slot = ITEM_SLOT_NECK
+	path = /obj/item/clothing/neck/cloak/binary/alt
+	ckeywhitelist = list("homandos")
+
 /datum/gear/donator/bm/pedantcape
 	name = "Corvus Pendant"
 	slot = ITEM_SLOT_BACKPACK

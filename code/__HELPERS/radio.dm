@@ -31,4 +31,3 @@
 	while((freq_to_check == 0) || ("[freq_to_check]" in GLOB.reverseradiochannels))
 
 	return freq_to_check
-

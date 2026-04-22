@@ -292,3 +292,14 @@
       (в любом регистре).
   - bugfix: Превью MP4/WebM-хедшотов в окне создания персонажа теперь отображается
       корректно, а не ломается из-за `<img>`.
+  - bugfix: пофикшены лаги от hard delete /atom/movable/lighting_object. Destroy теперь
+      корректно отцепляет vis_contents перед отменой анимации и использует свежую
+      матрицу вместо `src.color`, чтобы BYOND не короткозамыкал END_NOW
+  - server: поднят BYOND с 516.1675 до 516.1680 в `dependencies.sh` для выравнивания
+      CI с прод-сервером (прод и так уже на 1680)
+  - code_imp: добавлены 8 регрессионных тестов на утечки lighting_object через `gc_rewrite_base`
+      (baseline, ChangeTurf transfer/double/FORCEOP, clear_overlay, rebuild_overlay,
+      mass batch с chained animations, control)
+  Lev1932:
+  - rscadd: Перевод кровососов! Теперь можно пить кровь на русском языке(квирк не
+      затронут)

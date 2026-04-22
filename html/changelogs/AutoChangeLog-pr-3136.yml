@@ -1,0 +1,6 @@
+author: Lev1932
+delete-after: true
+changes:
+  - qol: Добавлены альфа-пиксели(прозрачные) на plate carrier harness и его белую
+      вариацию(почему так, вопросы не ко мне, а к спрайтеру, что попросил закинуть(lapkee))
+  - image: Переделан спрайт сложенного security jumpsuit для digi ног

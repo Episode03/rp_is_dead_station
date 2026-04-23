@@ -1,0 +1,4 @@
+author: DuLL-FoX
+delete-after: true
+changes:
+  - bugfix: пофикшен рантайм в update_visuals у High Luminosity Eyes (светящиеся киберглаза)

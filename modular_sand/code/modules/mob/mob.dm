@@ -127,6 +127,10 @@
 		if(PROTOLOCK_ACCESS_NORMAL)
 			return TRUE
 
+		// Type: Code red unlock
+		if(PROTOLOCK_ACCESS_CODERED)
+			return TRUE
+
 		// Type: Captain
 		if(PROTOLOCK_ACCESS_CAPTAIN)
 			return TRUE
@@ -148,3 +152,4 @@
 #undef JOB_MINIMAL_ACCESS
 #undef PROTOLOCK_DURING_LOWPOP
 #undef PROTOLOCK_ALL_ACCESS
+#undef PROTOLOCK_DURING_CODERED

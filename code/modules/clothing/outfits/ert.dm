@@ -114,7 +114,7 @@
 	glasses = /obj/item/clothing/glasses/hud/health/night/syndicate
 	belt = /obj/item/storage/belt/military/ert_max
 	suit_store = /obj/item/gun/energy/modular_laser_rifle
-	l_pocket = /obj/item/gun/ballistic/revolver/mateba
+	l_pocket = /obj/item/gun/ballistic/revolver/requiem
 	shoes = /obj/item/clothing/shoes/magboots/syndie/advance
 
 	backpack_contents = list(/obj/item/storage/box/survival/centcom=1,\
@@ -226,7 +226,7 @@
 	mask = /obj/item/clothing/mask/gas/sechailer/swat
 	suit = /obj/item/clothing/suit/space/hardsuit/ert/alert/sec
 	suit_store = /obj/item/gun/energy/modular_laser_rifle
-	l_pocket = /obj/item/gun/ballistic/revolver/mateba
+	l_pocket = /obj/item/gun/ballistic/revolver/requiem
 	belt = /obj/item/storage/belt/military/ert_max
 
 
@@ -355,7 +355,7 @@
 	mask = /obj/item/clothing/mask/gas/sechailer/swat
 	suit = /obj/item/clothing/suit/space/hardsuit/ert/alert/med
 	suit_store = /obj/item/gun/energy/modular_laser_rifle
-	l_pocket = /obj/item/gun/ballistic/revolver/mateba
+	l_pocket = /obj/item/gun/ballistic/revolver/requiem
 
 	backpack_contents = list(/obj/item/storage/box/survival/centcom=1,
 		/obj/item/gun/energy/e_gun/nuclear/ert=1,
@@ -482,7 +482,7 @@
 
 	suit = /obj/item/clothing/suit/space/hardsuit/ert/alert/engi
 	suit_store = /obj/item/gun/energy/modular_laser_rifle
-	l_pocket = /obj/item/gun/ballistic/revolver/mateba
+	l_pocket = /obj/item/gun/ballistic/revolver/requiem
 
 
 	backpack_contents = list(/obj/item/storage/box/survival/centcom=1,\

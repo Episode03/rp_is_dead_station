@@ -2102,6 +2102,7 @@
 #include "code\modules\antagonists\terror_spiders\terror_spiders.dm"
 #include "code\modules\antagonists\traitor\datum_traitor.dm"
 #include "code\modules\antagonists\traitor\syndicate_contract.dm"
+#include "code\modules\antagonists\traitor\ransom_extraction.dm"
 #include "code\modules\antagonists\traitor\classes\ai.dm"
 #include "code\modules\antagonists\traitor\classes\assassin.dm"
 #include "code\modules\antagonists\traitor\classes\freeform.dm"

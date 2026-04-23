@@ -1318,7 +1318,6 @@
 	slot = ITEM_SLOT_BACKPACK
 	path = /obj/item/storage/box/hahun_eidolon
 	ckeywhitelist = list("dolbajob", "enigma418")
-	cost = 0
 
 /datum/gear/donator/bm/hahun_medvest
 	name = "Rescue task force vest"
@@ -1427,14 +1426,12 @@
 	slot = ITEM_SLOT_BACKPACK
 	path = /obj/item/modkit/fluff_praxil_seven_kit
 	ckeywhitelist = list("enigma418", "dolbajob")
-	cost = 0
 
 /datum/gear/donator/bm/m_9922
 	name = "M-9922 Kit"
 	slot = ITEM_SLOT_BACKPACK
 	path = /obj/item/storage/box/fluff_m_9922_kit
 	ckeywhitelist = list("enigma418", "dolbajob")
-	cost = 0
 
 /datum/gear/donator/bm/dark_montur
 	name = "Dark Montur"
@@ -1920,7 +1917,6 @@
 	slot = ITEM_SLOT_BACKPACK
 	path = /obj/item/modkit/invis_belt
 	ckeywhitelist = list("herobrine998", "nyaaaa")
-	cost = 0
 
 /datum/gear/donator/bm/verdant_suit
 	name = "Verdant Tactical Suit"
@@ -2368,4 +2364,3 @@
 	slot = ITEM_SLOT_BACKPACK
 	path = /obj/item/modkit/invis_belt
 	ckeywhitelist = list("angrylaska")
-	cost = 0

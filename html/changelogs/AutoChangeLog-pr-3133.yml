@@ -1,8 +1,0 @@
-author: DuLL-FoX
-delete-after: true
-changes:
-  - code_imp: get_hearers_in_view теперь делает один проход по view() вместо двух
-      с type-filter
-  - code_imp: ReadRGB кеширует результаты парсинга rgb-строк с ограничением размера
-      кеша
-  - bugfix: обход регрессии CSS-валидатора /client/script на BYOND 516.1681

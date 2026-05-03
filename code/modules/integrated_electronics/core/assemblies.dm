@@ -376,7 +376,7 @@
 	if(IC.w_class > w_class)
 		to_chat(user, "<span class='warning'>\The [IC] is way too big to fit into \the [src].</span>")
 		return FALSE
-	if(istype(IC, /obj/item/integrated_circuit/manipulation/interacter) && locate(/obj/item/integrated_circuit/manipulation/interacter) in src.assembly_components)
+	if(IC.one_per_assembly && locate(IC) in src.assembly_components)
 		to_chat(user, "<span class='warning'>Вы не можете вставить две этих детали в один корпус.</span>")
 		return FALSE
 	var/total_part_size = return_total_size()

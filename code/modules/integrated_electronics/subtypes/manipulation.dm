@@ -23,7 +23,8 @@
 	..()
 	var/turf/T = get_turf(src)
 	if(T && assembly)
-		if(assembly.anchored || !assembly.can_move())
+		if(assembly.anchored || !assembly.can_move() || !has_gravity(assembly))
+			activate_pin(3)
 			return
 		if(assembly.loc == T) // Check if we're held by someone.  If the loc is the floor, we're not held.
 			var/datum/integrated_io/wanted_dir = inputs[1]

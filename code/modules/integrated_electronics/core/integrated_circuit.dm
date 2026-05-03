@@ -26,6 +26,7 @@
 	var/displayed_name = ""
 	var/demands_object_input = FALSE
 	var/can_input_object_when_closed = FALSE
+	var/one_per_assembly = FALSE
 
 	/// TGUI (IntegratedCircuit): node position when shown in assembly / solo UI
 	var/ie_ui_rel_x = 0

@@ -16,11 +16,9 @@
 	extended_desc = "Circuit capable of connecting to station's radio frequencies, \
 	and intercept radio signals without having to wait for telecomms to process them. \
 	Requires encryption keys to work with departmental radio channels."
-	complexity = 10 // Now that this circuit is nerfed into oblivion, high complexity doesn't make much sense
+	complexity = 6 // Now that this circuit is nerfed into oblivion, high complexity doesn't make much sense
 	cooldown_per_use = 0.1
 	w_class = WEIGHT_CLASS_SMALL
-	// Bluemoon edit - what the petty-bullshit-spaghetti even is this feature?
-	// WHO the fuck thought that allowing any Joe to jam everything for the cost of 0.2 sheets of fucking metal is a good fucking idea?
 /*
 	inputs = list(
 		"intercept" = IC_PINTYPE_BOOLEAN,
@@ -56,18 +54,22 @@
 //	GLOB.ic_jammers -= src
 	return ..()
 
-/obj/item/integrated_circuit/input/tcomm_interceptor/receive_signal(datum/signal/signal)
-	if((signal.transmission_method == TRANSMISSION_SUBSPACE) && get_pin_data(IC_INPUT, 1))
-		if(signal.frequency != FREQ_COMMON)
-			if(!(signal.frequency in freq_whitelist))
-				return
-		set_pin_data(IC_OUTPUT, 1, signal.data["name"])
-		set_pin_data(IC_OUTPUT, 2, signal.data["job"])
-		set_pin_data(IC_OUTPUT, 3, signal.data["message"])
-		set_pin_data(IC_OUTPUT, 4, signal.data["spans"])
-		set_pin_data(IC_OUTPUT, 5, signal.frequency)
-		push_data()
-		activate_pin(1)
+/obj/item/integrated_circuit/input/tcomm_interceptor/receive_signal(datum/signal/subspace/signal)
+	if(!assembly || !get_pin_data(IC_INPUT, 1) || !istype(signal) || signal.transmission_method != TRANSMISSION_SUBSPACE)	// Basically identical to subspace receiver
+		return
+	if(!(0 in signal.levels))	// Stupid workaround that allows this circuit to listen to bounced radios from nullspace even when their signal gets received by a broadcaster
+		if(!(assembly.z in signal.levels))
+			return
+	if(signal.frequency != FREQ_COMMON)	// common freq check
+		if(!(signal.frequency in freq_whitelist))	// encryption keys check
+			return
+	set_pin_data(IC_OUTPUT, 1, signal.data["name"])
+	set_pin_data(IC_OUTPUT, 2, signal.data["job"])
+	set_pin_data(IC_OUTPUT, 3, signal.data["message"])
+	set_pin_data(IC_OUTPUT, 4, signal.data["spans"])
+	set_pin_data(IC_OUTPUT, 5, signal.frequency)
+	push_data()
+	activate_pin(1)
 
 /obj/item/integrated_circuit/input/tcomm_interceptor/on_data_written()
 /*

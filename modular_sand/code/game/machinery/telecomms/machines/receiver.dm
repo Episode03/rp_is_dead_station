@@ -43,7 +43,7 @@
 	holder = null
 	. = ..()
 
-/obj/machinery/telecomms/receiver/circuit/receive_signal(datum/signal/signal)
+/obj/machinery/telecomms/receiver/circuit/receive_signal(datum/signal/subspace/signal)
 	if(!holder.get_pin_data(IC_INPUT, 1))
 		return
 	if(!signal)

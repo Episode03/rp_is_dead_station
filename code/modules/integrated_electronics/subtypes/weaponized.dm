@@ -35,6 +35,7 @@
 	var/lethal_projectile_sound
 
 	demands_object_input = TRUE		// You can put stuff in once the circuit is in assembly,passed down from additem and handled by attackby()
+	expected_object_type = /obj/item/gun/energy
 
 	one_per_assembly = TRUE
 
@@ -166,7 +167,8 @@
 	action_flags = IC_ACTION_COMBAT
 	var/obj/item/grenade/attached_grenade
 	var/pre_attached_grenade_type
-	demands_object_input = TRUE	// You can put stuff in once the circuit is in assembly,passed down from additem and handled by attackby()
+	demands_object_input = TRUE	// You can put stuff in once the circuit is in assembly, passed down from additem and handled by attackby()
+	expected_object_type = /obj/item/grenade
 
 /obj/item/integrated_circuit/weaponized/grenade/Initialize(mapload)
 	. = ..()

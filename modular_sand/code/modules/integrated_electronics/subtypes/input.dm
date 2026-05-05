@@ -43,6 +43,8 @@
 	var/list/encryption_keys = list()
 	var/list/freq_whitelist = list()	// Frequencies that we can listen to. Determined by encription keys installed in this circuit.
 //	var/list/freq_blacklist = list(FREQ_CENTCOM,FREQ_SYNDICATE,FREQ_INTEQ,FREQ_GHOST_INTEQ,FREQ_PIRATE,FREQ_CTF_RED,FREQ_CTF_BLUE)
+	demands_object_input = TRUE
+	expected_object_type = /obj/item/encryptionkey
 
 /obj/item/integrated_circuit/input/tcomm_interceptor/Initialize(mapload)
 	. = ..()

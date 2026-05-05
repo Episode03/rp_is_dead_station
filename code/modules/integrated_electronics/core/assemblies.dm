@@ -579,6 +579,8 @@
 		//Check all the components asking for an input
 		for(var/obj/item/integrated_circuit/input in assembly_components)
 			if((input.demands_object_input && opened) || (input.demands_object_input && input.can_input_object_when_closed))
+				if(!input.can_accept_item(I))
+					continue
 				var/i = 0
 				//Check if there is another component with the same name and append a number for identification
 				for(var/s in input_selection)
@@ -592,7 +594,7 @@
 				input_selection[disp_name] = input
 
 		var/obj/item/integrated_circuit/choice
-		if(input_selection)
+		if(length(input_selection))
 			if(input_selection.len == 1)
 				choice = input_selection[input_selection[1]]
 			else
@@ -605,6 +607,11 @@
 				choice.additem(I, user)
 		for(var/obj/item/integrated_circuit/input/S in assembly_components)
 			S.attackby_react(I,user,user.a_intent)
+		//	Easiest way to check if item "I" was consumed, or otherwise taken by one of the circuits.
+		//	If a circuit with demand_object_input == TRUE, or something like a scanner takes the items, prevents user from hitting assembly with it.
+		//	I could code something less hacky, but i'm pretty tired of IC logic at this point, and i want it to be as failproof as possible.
+		if(!user.is_holding(I))
+			return TRUE
 		return ..()
 
 

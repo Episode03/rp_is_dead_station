@@ -19,6 +19,8 @@
 	var/list/whitelisted_freqs = list() // special freqs can be used by inserting encryption keys
 	var/list/encryption_keys = list()
 	var/obj/item/radio/headset/integrated/radio
+	demands_object_input = TRUE
+	expected_object_type = /obj/item/encryptionkey
 
 /obj/item/integrated_circuit/output/text_to_radio/Initialize(mapload)
 	. = ..()
@@ -57,8 +59,9 @@
 
 /obj/item/integrated_circuit/output/text_to_radio/proc/recalculate_channels()
 	whitelisted_freqs.Cut()
-	set_pin_data(IC_INPUT, 2, 1459)
-	radio.set_frequency(FREQ_COMMON) //reset it
+//	encryption keys should be installed into the assembly now, we don't need to change IC shit when it happens
+//	set_pin_data(IC_INPUT, 2, 1459)
+//	radio.set_frequency(FREQ_COMMON) //reset it
 	var/list/weakreffd_ekeys = list()
 	for(var/o in encryption_keys)
 		var/obj/item/encryptionkey/K = o

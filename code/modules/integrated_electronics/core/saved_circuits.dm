@@ -288,6 +288,7 @@
 		return "Invalid components list."	// No components or damaged components list
 
 	var/list/assembly_components = list()
+	var/list/unique_components_detected = list()
 	for(var/C in blocks["components"])
 		var/list/component_params = C
 
@@ -302,6 +303,10 @@
 
 		// Add temporary component to assembly_components list, to be used later when verifying the wires
 		assembly_components.Add(component)
+		if(component.one_per_assembly)
+			if(unique_components_detected[component_path])
+				return "Duplicate unique component: [component.name]. Unable to print."
+			unique_components_detected[component_path] = TRUE
 
 		// Check component save data for errors
 		error = component.verify_save(component_params)

@@ -62,3 +62,6 @@
 				activate_pin(3)
 				return FALSE
 	return FALSE
+
+#undef MAX_ION_DRIFT_SPEED
+#undef ION_ACCEL_PER_PULSE

@@ -1,0 +1,188 @@
+import { Component } from 'inferno';
+import { useBackend } from 'tgui/backend';
+import { Box } from 'tgui/components';
+import { Window } from 'tgui/layouts';
+import './VirtualJoystick.scss';
+
+let canvasElement = null;
+let containerRef = {};
+
+export class VirtualJoystick extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      knobX: 0,
+      knobY: 0,
+      dragging: false,
+      trailPoints: [],
+    };
+    this.ctxRef = {};
+    this.trailTimeoutRef = {};
+  }
+
+  componentDidMount() {
+    if (!canvasElement) {
+      canvasElement = document.createElement('canvas');
+      canvasElement.style.position = 'absolute';
+      canvasElement.style.pointerEvents = 'none';
+      canvasElement.style.width = '100%';
+      canvasElement.style.height = '100%';
+      if (containerRef.current) {
+        containerRef.current.appendChild(canvasElement);
+        this.ctxRef.current = canvasElement.getContext('2d');
+      }
+    }
+  }
+
+  componentWillUnmount() {
+    if (canvasElement) {
+      canvasElement.remove();
+      canvasElement = null;
+    }
+  }
+
+  updatePosition(clientX, clientY) {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const rect = container.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+
+    let dx = clientX - centerX;
+    let dy = centerY - clientY;
+
+    const maxDist = rect.width / 2 * 0.8;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist > maxDist) {
+      dx = dx / dist * maxDist;
+      dy = dy / dist * maxDist;
+    }
+
+    const normX = dx / maxDist;
+    const normY = dy / maxDist;
+
+    const now = Date.now();
+    this.setState(prevState => ({
+      knobX: normX,
+      knobY: normY,
+      trailPoints: [...prevState.trailPoints, { x: normX, y: normY, time: now }]
+        .filter(p => now - p.time < 300),
+    }));
+
+    // useBackend is called here because it's a static function, not a hook
+    const { act } = useBackend(this.context);
+    act('update_position', { x: +normX.toFixed(2), y: +normY.toFixed(2) });
+  }
+
+  handleMouseDown(e) {
+    e.preventDefault();
+    this.setState({ dragging: true });
+    this.updatePosition(e.clientX, e.clientY);
+
+    const onMouseMove = (e) => this.updatePosition(e.clientX, e.clientY);
+    const onMouseUp = () => {
+      this.setState({ dragging: false, knobX: 0, knobY: 0 });
+      const { act } = useBackend(this.context);
+      act('update_position', { x: 0, y: 0 });
+      setTimeout(() => this.setState({ trailPoints: [] }), 200);
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+    };
+
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+  }
+
+  animateTrail() {
+    const ctx = this.ctxRef.current;
+    const container = containerRef.current;
+    if (!ctx || !container) return;
+
+    const width = container.clientWidth;
+    const height = container.clientHeight;
+    ctx.canvas.width = width;
+    ctx.canvas.height = height;
+    ctx.clearRect(0, 0, width, height);
+
+    const now = Date.now();
+    const points = this.state.trailPoints.filter(p => now - p.time < 300);
+    if (points.length === 0) return;
+
+    if (points.length === 1) {
+      const p = points[0];
+      const opacity = 1 - (now - p.time) / 300;
+      const x = (p.x * 40 + 50) / 100 * width;
+      const y = (50 - p.y * 40) / 100 * height;
+      ctx.beginPath();
+      ctx.arc(x, y, 2, 0, 2 * Math.PI);
+      ctx.fillStyle = `rgba(0, 229, 255, ${opacity})`;
+      ctx.fill();
+    } else {
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      for (let i = 1; i < points.length; i++) {
+        const p1 = points[i - 1];
+        const p2 = points[i];
+        const age1 = now - p1.time;
+        const age2 = now - p2.time;
+        const opacity1 = Math.max(0, 1 - age1 / 300);
+        const opacity2 = Math.max(0, 1 - age2 / 300);
+        const x1 = (p1.x * 40 + 50) / 100 * width;
+        const y1 = (50 - p1.y * 40) / 100 * height;
+        const x2 = (p2.x * 40 + 50) / 100 * width;
+        const y2 = (50 - p2.y * 40) / 100 * height;
+        const lineWidth = Math.max(0.5, 3 * Math.min(opacity1, opacity2));
+        const gradient = ctx.createLinearGradient(x1, y1, x2, y2);
+        gradient.addColorStop(0, `rgba(0, 229, 255, ${opacity1})`);
+        gradient.addColorStop(1, `rgba(0, 229, 255, ${opacity2})`);
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.strokeStyle = gradient;
+        ctx.lineWidth = lineWidth;
+        ctx.stroke();
+      }
+    }
+
+    const freshPoints = points.filter(p => now - p.time < 300);
+    this.setState({ trailPoints: freshPoints });
+    this.trailTimeoutRef.current = requestAnimationFrame(() => this.animateTrail());
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (this.state.trailPoints !== prevState.trailPoints) {
+      cancelAnimationFrame(this.trailTimeoutRef.current);
+      this.trailTimeoutRef.current = requestAnimationFrame(() => this.animateTrail());
+    }
+  }
+
+  render() {
+    const { knobX, knobY } = this.state;
+    const maxPercentRadius = 40;
+    const knobLeft = 50 + knobX * maxPercentRadius - 10;
+    const knobTop = 50 - knobY * maxPercentRadius - 10;
+
+    return (
+      <Window title="" canClose={false}>
+        <Window.Content>
+          <Box className="VirtualJoystick">
+            <div
+              className="joystick-container"
+              ref={el => { containerRef.current = el; }}
+              onMouseDown={(e) => this.handleMouseDown(e)}
+            >
+              <div
+                className="knob"
+                style={{
+                  left: `${knobLeft}%`,
+                  top: `${knobTop}%`,
+                }}
+              />
+            </div>
+          </Box>
+        </Window.Content>
+      </Window>
+    );
+  }
+}

@@ -16,9 +16,13 @@
 	power_draw_per_use = 5
 
 /obj/item/integrated_circuit/input/gravity_sensor/do_work()
+	if(!assembly)
+		return
 	if(has_gravity(assembly))
-		activate_pin(2)
 		set_pin_data(IC_OUTPUT, 1, TRUE)
+		push_data()
+		activate_pin(2)
 	else
-		activate_pin(3)
 		set_pin_data(IC_OUTPUT, 1, FALSE)
+		push_data()
+		activate_pin(3)

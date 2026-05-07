@@ -123,31 +123,46 @@
 		return
 	if(!installed_gun.cell.charge)
 		return
+
 	var/obj/item/ammo_casing/energy/shot
 	if(length(installed_gun.ammo_type) > 1)
-		shot = installed_gun.ammo_type[mode?2:1]
+		shot = installed_gun.ammo_type[mode ? 2 : 1]
 	else
 		shot = installed_gun.ammo_type[1]
 	if(installed_gun.cell.charge < shot.e_cost)
 		return
 	if(!shot)
 		return
+
+	//	Scan turf for a valid target
+	var/atom/actual_target = target
+	for(var/mob/living/M in target.contents)	// Prioritize mobs first
+		actual_target = M
+		break
+	if(actual_target == target)	// If no mobs located, attempt to locate an object
+		for(var/obj/O in target.contents)
+			actual_target = O
+			break
+	//
+
 	update_icon()
 	var/obj/item/projectile/A
 	if(!mode)
 		A = new stun_projectile(T)
-		playsound(loc, stun_projectile_sound, 75, 1)
+		playsound(loc, stun_projectile_sound, 75, TRUE)
 	else
 		A = new lethal_projectile(T)
-		playsound(loc, lethal_projectile_sound, 75, 1)
+		playsound(loc, lethal_projectile_sound, 75, TRUE)
 	installed_gun.cell.use(shot.e_cost)
-	//Shooting Code:
-	A.preparePixelProjectile(target, src)
+
+	// Shooting Code – shoot into located target
+	A.preparePixelProjectile(actual_target, src)
 	A.fire()
+
 	if(ismob(loc.loc))
 		installed_gun.shoot_live_shot(loc.loc)
 	else
-		installed_gun.shoot_live_shot() //Shitcode, but we don't have much of a choice
+		installed_gun.shoot_live_shot()
 	log_attack("[assembly] [REF(assembly)] has fired [installed_gun].")
 	return A
 

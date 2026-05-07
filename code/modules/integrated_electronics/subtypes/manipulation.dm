@@ -19,7 +19,7 @@
 	spawn_flags = IC_SPAWN_RESEARCH
 	action_flags = IC_ACTION_MOVEMENT
 	power_draw_per_use = 100
-	one_per_assembly = TRUE
+	limit_per_assembly = 1
 
 /obj/item/integrated_circuit/manipulation/locomotion/do_work()
 	..()

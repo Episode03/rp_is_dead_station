@@ -376,9 +376,14 @@
 	if(IC.w_class > w_class)
 		to_chat(user, "<span class='warning'>\The [IC] is way too big to fit into \the [src].</span>")
 		return FALSE
-	if(IC.one_per_assembly && locate(IC.type) in src.assembly_components)
-		to_chat(user, "<span class='warning'>Вы не можете вставить две этих детали в один корпус.</span>")
-		return FALSE
+	if(IC.limit_per_assembly > 0)	// limit_per_assembly is not null and > 0
+		var/already = 0
+		for(var/obj/item/integrated_circuit/C in assembly_components)	// checking all circuits already present
+			if(C.type == IC.type)
+				already++
+				if(already >= IC.limit_per_assembly)
+					to_chat(user, "<span class='warning'>Вы не можете вставить больше [IC.limit_per_assembly] таких плат в один корпус.</span>")
+					return FALSE
 	var/total_part_size = return_total_size()
 	var/total_complexity = return_total_complexity()
 

@@ -20,6 +20,8 @@
 		ui.open()
 
 /datum/virtual_joystick_proxy/ui_data(mob/user)
+	if(!circuit)
+		return list("x" = 0, "y" = 0)
 	return list("x" = circuit.joystick_x, "y" = circuit.joystick_y)
 
 /datum/virtual_joystick_proxy/ui_act(action, list/params, datum/tgui/ui)
@@ -72,7 +74,7 @@
 	var/list/current_proxies = list()
 
 /obj/item/integrated_circuit/input/virtual_joystick/Destroy()
-	for(var/mob/user in current_proxies)
+	for(var/mob/user as anything in current_proxies.Copy())
 		var/datum/virtual_joystick_proxy/proxy = current_proxies[user]
 		SStgui.close_uis(proxy)
 		qdel(proxy)

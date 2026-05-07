@@ -646,7 +646,7 @@
 	var/obj/item/integrated_circuit/input/choice
 
 
-	if(input_selection)
+	if(length(input_selection))
 		if(input_selection.len ==1)
 			choice = input_selection[input_selection[1]]
 		else

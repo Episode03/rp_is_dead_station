@@ -30,6 +30,7 @@
 /mob/living/carbon/integral/Destroy()
 	my_interacter = null
 	QDEL_NULL(mind)
+	bodyparts = list()	// type paths were causing multiple runtimes when each bodypart was qdel'ted. This fixes it. As far as i'm aware.
 	return ..()
 
 /mob/living/carbon/integral/Initialize(mapload)

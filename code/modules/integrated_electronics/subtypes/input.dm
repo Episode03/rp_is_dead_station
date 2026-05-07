@@ -349,7 +349,12 @@
 		if(istype(H, /mob/living))
 			var/mob/living/carbon/human/D = generate_or_wait_for_human_dummy(DUMMY_HUMAN_SLOT_EXAMINER)
 			D.forceMove(src)
+
+			var/original_stat = D.stat
+			D.stat = UNCONSCIOUS	// Temporarily putting the dummy to sleep to supress examine() to_chat messages without changing any core files
 			var/msg = H.examine(D)
+			D.stat = original_stat	// Wake up sunshine
+
 			if(islist(msg))
 				msg = jointext(msg, " ")
 			if(msg)

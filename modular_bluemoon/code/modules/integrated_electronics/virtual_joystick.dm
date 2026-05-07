@@ -27,8 +27,12 @@
 		return
 	switch(action)
 		if("update_position")
-			circuit.joystick_x = round(clamp(params["x"], -1, 1), 0.01)
-			circuit.joystick_y = round(clamp(params["y"], -1, 1), 0.01)
+			var/nx = params["x"]
+			var/ny = params["y"]
+			if(!isnum(nx) || !isnum(ny))
+				return
+			circuit.joystick_x = round(clamp(nx, -1, 1), 0.01)
+			circuit.joystick_y = round(clamp(ny, -1, 1), 0.01)
 			return TRUE
 
 /datum/virtual_joystick_proxy/ui_close(mob/user)
@@ -63,8 +67,8 @@
 	)
 	spawn_flags = IC_SPAWN_DEFAULT|IC_SPAWN_RESEARCH
 	power_draw_per_use = 1
-	var/joystick_x
-	var/joystick_y
+	var/joystick_x = 0
+	var/joystick_y = 0
 	var/list/current_proxies = list()
 
 /obj/item/integrated_circuit/input/virtual_joystick/Destroy()
@@ -75,20 +79,23 @@
 	current_proxies.Cut()
 	return ..()
 
-/obj/item/integrated_circuit/input/virtual_joystick/Moved(atom/OldLoc, Dir)
+// Both of those checks are required, otherwise UI doesn't close properly. Right now i'm not sure how to make this system not suck. Might revisit it later.
+/obj/item/integrated_circuit/input/virtual_joystick/Moved(atom/OldLoc, Dir)	// update window on circuit movement (in and out of assembly)
 	. = ..()
 	update_joystick_window()
 
-/obj/item/integrated_circuit/input/virtual_joystick/ext_moved(oldLoc, dir)
+/obj/item/integrated_circuit/input/virtual_joystick/ext_moved(oldLoc, dir)	// update window on assembly movement (in space, between hands)
 	. = ..()
 	update_joystick_window()
 
 /obj/item/integrated_circuit/input/virtual_joystick/proc/update_joystick_window()
 	var/atom/movable/object = get_object()
+	if(!object)
+		return
 	var/mob/holder = (ismob(object.loc) ? object.loc : null)
 
 	// Close any proxies that shouldn't be open anymore
-	for(var/mob/user in current_proxies)
+	for(var/mob/user as anything in current_proxies.Copy())
 		var/should_stay = (user == holder)
 		if(!should_stay)
 			var/datum/virtual_joystick_proxy/proxy = current_proxies[user]

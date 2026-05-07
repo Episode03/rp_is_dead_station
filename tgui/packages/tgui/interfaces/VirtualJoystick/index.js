@@ -4,45 +4,59 @@ import { Box } from 'tgui/components';
 import { Window } from 'tgui/layouts';
 import './VirtualJoystick.scss';
 
-let canvasElement = null;
-let containerRef = {};
-
 export class VirtualJoystick extends Component {
   constructor(props) {
     super(props);
     this.state = {
       knobX: 0,
       knobY: 0,
-      dragging: false,
       trailPoints: [],
     };
+    this.canvasElement = null;
+    this.containerRef = { current: null }
     this.ctxRef = {};
     this.trailTimeoutRef = {};
+    this._mouseMoveHandler = null;        // stored ref for cleanup
+    this._mouseUpHandler = null;
   }
 
   componentDidMount() {
-    if (!canvasElement) {
-      canvasElement = document.createElement('canvas');
-      canvasElement.style.position = 'absolute';
-      canvasElement.style.pointerEvents = 'none';
-      canvasElement.style.width = '100%';
-      canvasElement.style.height = '100%';
-      if (containerRef.current) {
-        containerRef.current.appendChild(canvasElement);
-        this.ctxRef.current = canvasElement.getContext('2d');
+    if (!this.canvasElement) {
+      this.canvasElement = document.createElement('canvas');
+      this.canvasElement.style.position = 'absolute';
+      this.canvasElement.style.pointerEvents = 'none';
+      this.canvasElement.style.width = '100%';
+      this.canvasElement.style.height = '100%';
+      if (this.containerRef.current) {
+        this.containerRef.current.appendChild(this.canvasElement);
+        this.ctxRef.current = this.canvasElement.getContext('2d');
       }
     }
   }
 
   componentWillUnmount() {
-    if (canvasElement) {
-      canvasElement.remove();
-      canvasElement = null;
+    if (this.trailTimeoutRef.current) {
+      cancelAnimationFrame(this.trailTimeoutRef.current);
+      this.trailTimeoutRef.current = null;
+    }
+
+    if (this._mouseMoveHandler) {
+      window.removeEventListener('mousemove', this._mouseMoveHandler);
+      this._mouseMoveHandler = null;
+    }
+    if (this._mouseUpHandler) {
+      window.removeEventListener('mouseup', this._mouseUpHandler);
+      this._mouseUpHandler = null;
+    }
+
+    if (this.canvasElement) {
+      this.canvasElement.remove();
+      this.canvasElement = null;
     }
   }
 
   updatePosition(clientX, clientY) {
-    const container = containerRef.current;
+    const container = this.containerRef.current;
     if (!container) return;
 
     const rect = container.getBoundingClientRect();
@@ -77,26 +91,28 @@ export class VirtualJoystick extends Component {
 
   handleMouseDown(e) {
     e.preventDefault();
-    this.setState({ dragging: true });
     this.updatePosition(e.clientX, e.clientY);
 
-    const onMouseMove = (e) => this.updatePosition(e.clientX, e.clientY);
-    const onMouseUp = () => {
-      this.setState({ dragging: false, knobX: 0, knobY: 0 });
+    this._mouseMoveHandler = (e) => this.updatePosition(e.clientX, e.clientY);
+    this._mouseUpHandler = () => {
+      this.setState({ knobX: 0, knobY: 0 });
       const { act } = useBackend(this.context);
       act('update_position', { x: 0, y: 0 });
       setTimeout(() => this.setState({ trailPoints: [] }), 200);
-      window.removeEventListener('mousemove', onMouseMove);
-      window.removeEventListener('mouseup', onMouseUp);
+
+      window.removeEventListener('mousemove', this._mouseMoveHandler);
+      window.removeEventListener('mouseup', this._mouseUpHandler);
+      this._mouseMoveHandler = null;
+      this._mouseUpHandler = null;
     };
 
-    window.addEventListener('mousemove', onMouseMove);
-    window.addEventListener('mouseup', onMouseUp);
+    window.addEventListener('mousemove', this._mouseMoveHandler);
+    window.addEventListener('mouseup', this._mouseUpHandler);
   }
 
   animateTrail() {
     const ctx = this.ctxRef.current;
-    const container = containerRef.current;
+    const container = this.containerRef.current;
     if (!ctx || !container) return;
 
     const width = container.clientWidth;
@@ -169,7 +185,7 @@ export class VirtualJoystick extends Component {
           <Box className="VirtualJoystick">
             <div
               className="joystick-container"
-              ref={el => { containerRef.current = el; }}
+              ref={el => { this.containerRef.current = el; }}
               onMouseDown={(e) => this.handleMouseDown(e)}
             >
               <div

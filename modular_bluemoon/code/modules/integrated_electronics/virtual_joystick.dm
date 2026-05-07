@@ -61,7 +61,7 @@
 		"read" = IC_PINTYPE_PULSE_IN,
 		"on read" = IC_PINTYPE_PULSE_OUT
 	)
-	spawn_flags = IC_SPAWN_DEFAULT
+	spawn_flags = IC_SPAWN_DEFAULT|IC_SPAWN_RESEARCH
 	power_draw_per_use = 1
 	var/joystick_x
 	var/joystick_y
@@ -75,11 +75,11 @@
 	current_proxies.Cut()
 	return ..()
 
-/obj/item/integrated_circuit/input/virtual_joystick/ext_moved(oldLoc, dir)
+/obj/item/integrated_circuit/input/virtual_joystick/Moved(atom/OldLoc, Dir)
 	. = ..()
 	update_joystick_window()
 
-/obj/item/integrated_circuit/input/virtual_joystick/on_data_written()
+/obj/item/integrated_circuit/input/virtual_joystick/ext_moved(oldLoc, dir)
 	. = ..()
 	update_joystick_window()
 

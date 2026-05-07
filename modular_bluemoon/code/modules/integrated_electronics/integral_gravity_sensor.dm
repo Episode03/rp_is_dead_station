@@ -7,7 +7,11 @@
 	complexity = 2
 	inputs = list()
 	outputs = list("gravity detected" = IC_PINTYPE_BOOLEAN)
-	activators = list("check gravity" = IC_PINTYPE_PULSE_IN, "on gravity detected" = IC_PINTYPE_PULSE_OUT, "on no gravity detected" = IC_PINTYPE_PULSE_OUT)
+	activators = list(
+		"check gravity" = IC_PINTYPE_PULSE_IN,
+		"on gravity detected" = IC_PINTYPE_PULSE_OUT,
+		"on no gravity detected" = IC_PINTYPE_PULSE_OUT
+		)
 	spawn_flags = IC_SPAWN_DEFAULT|IC_SPAWN_RESEARCH
 	power_draw_per_use = 5
 

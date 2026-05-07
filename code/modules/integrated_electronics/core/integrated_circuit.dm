@@ -25,7 +25,7 @@
 	var/removable = TRUE 			// Determines if a circuit is removable from the assembly.
 	var/displayed_name = ""
 	var/demands_object_input = FALSE
-	var/expected_object_type = null	// If set, only items of this type will be offered to the circuit upon inserting them into the assembly. Doesn't affect actual circuit's attackby(). Keep 0 to accept anything, read can_accept_item() proc.
+	var/expected_object_type = null	// If set, only items of this type will be offered to the circuit upon inserting them into the assembly. Doesn't affect actual circuit's attackby(). Keep null to accept anything, read can_accept_item() proc.
 	var/can_input_object_when_closed = FALSE
 	var/one_per_assembly = FALSE
 

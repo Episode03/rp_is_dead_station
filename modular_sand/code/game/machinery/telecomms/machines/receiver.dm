@@ -44,6 +44,8 @@
 	. = ..()
 
 /obj/machinery/telecomms/receiver/circuit/receive_signal(datum/signal/subspace/signal)
+	if(QDELETED(holder))
+		return
 	if(!holder.get_pin_data(IC_INPUT, 1))
 		return
 	if(!signal)

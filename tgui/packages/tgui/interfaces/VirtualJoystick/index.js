@@ -10,14 +10,16 @@ export class VirtualJoystick extends Component {
     this.state = {
       knobX: 0,
       knobY: 0,
-      trailPoints: [],
     };
+    this.trailPoints = [];
+    this._animating = false;
     this.canvasElement = null;
-    this.containerRef = { current: null }
+    this.containerRef = { current: null };
     this.ctxRef = {};
     this.trailTimeoutRef = {};
-    this._mouseMoveHandler = null;        // stored ref for cleanup
+    this._mouseMoveHandler = null;
     this._mouseUpHandler = null;
+    this._dragActive = false;
   }
 
   componentDidMount() {
@@ -39,7 +41,6 @@ export class VirtualJoystick extends Component {
       cancelAnimationFrame(this.trailTimeoutRef.current);
       this.trailTimeoutRef.current = null;
     }
-
     if (this._mouseMoveHandler) {
       window.removeEventListener('mousemove', this._mouseMoveHandler);
       this._mouseMoveHandler = null;
@@ -48,7 +49,6 @@ export class VirtualJoystick extends Component {
       window.removeEventListener('mouseup', this._mouseUpHandler);
       this._mouseUpHandler = null;
     }
-
     if (this.canvasElement) {
       this.canvasElement.remove();
       this.canvasElement = null;
@@ -76,30 +76,32 @@ export class VirtualJoystick extends Component {
     const normX = dx / maxDist;
     const normY = dy / maxDist;
 
-    const now = Date.now();
-    this.setState(prevState => ({
-      knobX: normX,
-      knobY: normY,
-      trailPoints: [...prevState.trailPoints, { x: normX, y: normY, time: now }]
-        .filter(p => now - p.time < 300),
-    }));
+    this.setState({ knobX: normX, knobY: normY });
 
-    // useBackend is called here because it's a static function, not a hook
+    const now = Date.now();
+    this.trailPoints.push({ x: normX, y: normY, time: now });
+    this.trailPoints = this.trailPoints.filter(p => now - p.time < 300);
+
     const { act } = useBackend(this.context);
     act('update_position', { x: +normX.toFixed(2), y: +normY.toFixed(2) });
+
+    if (!this._animating) {
+      this._animating = true;
+      this.trailTimeoutRef.current = requestAnimationFrame(() => this.animateTrail());
+    }
   }
 
   handleMouseDown(e) {
     e.preventDefault();
+    this._dragActive = true;
     this.updatePosition(e.clientX, e.clientY);
 
     this._mouseMoveHandler = (e) => this.updatePosition(e.clientX, e.clientY);
     this._mouseUpHandler = () => {
+      this._dragActive = false;
       this.setState({ knobX: 0, knobY: 0 });
       const { act } = useBackend(this.context);
       act('update_position', { x: 0, y: 0 });
-      setTimeout(() => this.setState({ trailPoints: [] }), 200);
-
       window.removeEventListener('mousemove', this._mouseMoveHandler);
       window.removeEventListener('mouseup', this._mouseUpHandler);
       this._mouseMoveHandler = null;
@@ -113,7 +115,10 @@ export class VirtualJoystick extends Component {
   animateTrail() {
     const ctx = this.ctxRef.current;
     const container = this.containerRef.current;
-    if (!ctx || !container) return;
+    if (!ctx || !container) {
+      this._animating = false;
+      return;
+    }
 
     const width = container.clientWidth;
     const height = container.clientHeight;
@@ -122,8 +127,13 @@ export class VirtualJoystick extends Component {
     ctx.clearRect(0, 0, width, height);
 
     const now = Date.now();
-    const points = this.state.trailPoints.filter(p => now - p.time < 300);
-    if (points.length === 0) return;
+    this.trailPoints = this.trailPoints.filter(p => now - p.time < 300);
+    const points = this.trailPoints;
+
+    if (points.length === 0) {
+      this._animating = false;
+      return;
+    }
 
     if (points.length === 1) {
       const p = points[0];
@@ -161,15 +171,10 @@ export class VirtualJoystick extends Component {
       }
     }
 
-    const freshPoints = points.filter(p => now - p.time < 300);
-    this.setState({ trailPoints: freshPoints });
-    this.trailTimeoutRef.current = requestAnimationFrame(() => this.animateTrail());
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    if (this.state.trailPoints !== prevState.trailPoints) {
-      cancelAnimationFrame(this.trailTimeoutRef.current);
+    if (points.length > 0 || this._dragActive) {
       this.trailTimeoutRef.current = requestAnimationFrame(() => this.animateTrail());
+    } else {
+      this._animating = false;
     }
   }
 

@@ -29,6 +29,10 @@
 	QDEL_NULL(assembly.drift_handler)	// Гасим drift_handler, вызванный родительским moved()
 	return
 
+/obj/item/integrated_circuit/manipulation/ion_thruster/proc/emit_thrust_sparks(turf/T)
+	var/obj/effect/particle_effect/sparks/S = new(T, TRUE, 10)
+	S.color = list(0.2,0,0, 0,0.4,0, 0,0,1)
+
 /obj/item/integrated_circuit/manipulation/ion_thruster/do_work()
 	..()
 	var/turf/T = get_turf(src)
@@ -46,15 +50,11 @@
 					new /datum/drift_handler(assembly, angle, TRUE, 0, ION_ACCEL_PER_PULSE)
 				else
 					assembly.drift_handler.newtonian_impulse(angle, 0, ION_ACCEL_PER_PULSE, MAX_ION_DRIFT_SPEED)
-				var/obj/effect/particle_effect/sparks/S = new(T, TRUE)
-				S.color = list(0.2,0,0, 0,0.4,0, 0,0,1)
-				QDEL_IN(S, 0.5 SECONDS)
+				emit_thrust_sparks(T)
 				activate_pin(2)
 				return TRUE
 			if(step(assembly, wanted_dir.data))	// При включенных стабилизаторах используем стандартный step
-				var/obj/effect/particle_effect/sparks/S = new(T, TRUE)
-				S.color = list(0.2,0,0, 0,0.4,0, 0,0,1)
-				QDEL_IN(S, 0.5 SECONDS)
+				emit_thrust_sparks(T)
 				activate_pin(2)
 				return TRUE
 			else

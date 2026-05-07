@@ -577,21 +577,21 @@
 			return ..()
 		var/list/input_selection = list()
 		//Check all the components asking for an input
-		for(var/obj/item/integrated_circuit/input in assembly_components)
-			if((input.demands_object_input && opened) || (input.demands_object_input && input.can_input_object_when_closed))
-				if(!input.can_accept_item(I))
+		for(var/obj/item/integrated_circuit/C in assembly_components)
+			if((C.demands_object_input && opened) || (C.demands_object_input && C.can_input_object_when_closed))
+				if(!C.can_accept_item(I))
 					continue
 				var/i = 0
 				//Check if there is another component with the same name and append a number for identification
 				for(var/s in input_selection)
 					var/obj/item/integrated_circuit/s_circuit = input_selection[s] //The for-loop iterates the keys of the associative list.
-					if(s_circuit.name == input.name && s_circuit.displayed_name == input.displayed_name && s_circuit != input)
+					if(s_circuit.name == C.name && s_circuit.displayed_name == C.displayed_name && s_circuit != C)
 						i++
-				var/disp_name= "[input.displayed_name] \[[input]\]"
+				var/disp_name= "[C.displayed_name] \[[C]\]"
 				if(i)
 					disp_name += " ([i+1])"
 				//Associative lists prevent me from needing another list and using a Find proc
-				input_selection[disp_name] = input
+				input_selection[disp_name] = C
 
 		var/obj/item/integrated_circuit/choice
 		if(length(input_selection))

@@ -15,7 +15,7 @@
 	activators = list("broadcast" = IC_PINTYPE_PULSE_IN)
 	spawn_flags = IC_SPAWN_DEFAULT|IC_SPAWN_RESEARCH
 	power_draw_per_use = 100
-	cooldown_per_use = 0.1
+	cooldown_per_use = 10
 	var/list/whitelisted_freqs = list() // special freqs can be used by inserting encryption keys
 	var/list/encryption_keys = list()
 	var/obj/item/radio/headset/integrated/radio
@@ -68,7 +68,10 @@
 		weakreffd_ekeys += WEAKREF(K)
 		for(var/i in K.channels)
 			whitelisted_freqs |= GLOB.radiochannels[i]
+	if(!(radio.frequency in whitelisted_freqs))
+		on_data_written()
 	set_pin_data(IC_OUTPUT, 1, weakreffd_ekeys)
+	push_data()
 
 
 /obj/item/integrated_circuit/output/text_to_radio/attack_self(mob/user)

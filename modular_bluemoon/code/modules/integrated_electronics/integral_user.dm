@@ -14,7 +14,7 @@
 	action_flags = IC_ACTION_COMBAT
 	power_draw_per_use = 200
 	var/mob/living/carbon/integral/mob_for_using_items
-	limit_per_assembly = 1
+	one_per_assembly = TRUE
 
 /mob/living/carbon/integral
 	name = "integrated robotic hand"

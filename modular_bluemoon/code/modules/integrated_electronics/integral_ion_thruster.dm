@@ -20,7 +20,7 @@
 	spawn_flags = IC_SPAWN_RESEARCH
 	action_flags = IC_ACTION_MOVEMENT
 	power_draw_per_use = 500	// Расход энергии в несколько раз выше обычного локомоушена
-	one_per_assembly = TRUE
+	limit_per_assembly = 1
 
 /obj/item/integrated_circuit/manipulation/ion_thruster/ext_moved(oldLoc, dir)	// electronic_assembly/moved() вызывает drift_handler, после чего вызывает данную процедуру в схеме. Мы используем её для гашения инерции.
 	if(!assembly || has_gravity(assembly) || !assembly.drift_handler || !get_pin_data(IC_INPUT, 1))	// В иных случаях процедура не имеет смысла

@@ -37,7 +37,7 @@
 	demands_object_input = TRUE		// You can put stuff in once the circuit is in assembly,passed down from additem and handled by attackby()
 	expected_object_type = /obj/item/gun/energy
 
-	one_per_assembly = TRUE
+	limit_per_assembly = 2
 
 
 

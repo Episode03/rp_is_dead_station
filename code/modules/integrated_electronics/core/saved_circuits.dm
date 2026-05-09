@@ -308,7 +308,7 @@
 		var/count = component_counts[component_path] || 0	// Circuit counter
 		count++
 		if(component.limit_per_assembly > 0 && count > component.limit_per_assembly)	//
-			return "Слишком много компонентов '[component.name]' для одного корпуса. Максимум - [component.limit_per_assembly]"
+			return "Too many '[component.name]' components for a single assembly. Maximum - [component.limit_per_assembly]"
 		component_counts[component_path] = count
 
 		// Check component save data for errors

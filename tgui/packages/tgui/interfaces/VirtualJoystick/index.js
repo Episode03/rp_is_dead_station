@@ -122,7 +122,10 @@ export class VirtualJoystick extends Component {
     let dx = clientX - centerX;
     let dy = centerY - clientY;
 
-    const maxDist = rect.width / 2 * 0.8;
+    const maxDist = Math.min(rect.width, rect.height) * 0.4;
+    if (maxDist <= 0) {
+      return;
+    }
     const dist = Math.sqrt(dx * dx + dy * dy);
     if (dist > maxDist) {
       dx = dx / dist * maxDist;
@@ -238,7 +241,7 @@ export class VirtualJoystick extends Component {
     const knobTop = 50 - knobY * maxPercentRadius - 10;
 
     return (
-      <Window title="" canClose={false} width={200} height={200}>
+      <Window title="" canClose={false} width={180} height={210}>
         <Window.Content>
           <Box className="VirtualJoystick">
             <div

@@ -185,7 +185,7 @@ export class VirtualJoystick extends Component {
     const knobTop = 50 - knobY * maxPercentRadius - 10;
 
     return (
-      <Window title="" canClose={false}>
+      <Window title="" canClose={false} width={200} height={200}>
         <Window.Content>
           <Box className="VirtualJoystick">
             <div

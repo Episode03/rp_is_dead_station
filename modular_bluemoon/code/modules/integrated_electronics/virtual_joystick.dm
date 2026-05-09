@@ -35,6 +35,11 @@
 				return
 			circuit.joystick_x = round(clamp(nx, -1, 1), 0.01)
 			circuit.joystick_y = round(clamp(ny, -1, 1), 0.01)
+			// Data is being pushed on update
+			circuit.set_pin_data(IC_OUTPUT, 1, circuit.joystick_x)
+			circuit.set_pin_data(IC_OUTPUT, 2, circuit.joystick_y)
+			circuit.set_pin_data(IC_OUTPUT, 3, "[circuit.joystick_x];[circuit.joystick_y]")
+			circuit.push_data()
 			return TRUE
 
 /datum/virtual_joystick_proxy/ui_close(mob/user)
@@ -51,11 +56,12 @@
 	return user
 
 /obj/item/integrated_circuit/input/virtual_joystick
-
 	name = "virtual joystick"
 	desc = "Маленькая сенсорная панель, симулирующая джойстики старого мира"
 	extended_desc = "Сенсорный джойстик, полезен для управления ДУ схемами. \
-	При пульсации пина read снимает положение ползунка, и выдаёт его в виде относительных координат."
+	Положение джойстика выводится на выходные пины X и Y (числа от -1 до 1), \
+	а также в виде текста на пин combined. Координаты обновляются автоматически \
+	при перемещении ползунка."
 	icon_state = "screen"
 	complexity = 5
 	outputs = list(
@@ -63,12 +69,9 @@
 		"Y" = IC_PINTYPE_NUMBER,
 		"combined" = IC_PINTYPE_STRING
 	)
-	activators = list(
-		"read" = IC_PINTYPE_PULSE_IN,
-		"on read" = IC_PINTYPE_PULSE_OUT
-	)
-	spawn_flags = IC_SPAWN_DEFAULT|IC_SPAWN_RESEARCH
-	power_draw_per_use = 1
+	activators = list()
+	spawn_flags = IC_SPAWN_DEFAULT | IC_SPAWN_RESEARCH
+	power_draw_per_use = 0
 	var/joystick_x = 0
 	var/joystick_y = 0
 	var/list/current_proxies = list()
@@ -112,13 +115,3 @@
 		var/datum/virtual_joystick_proxy/proxy = new(src)
 		current_proxies[holder] = proxy
 		proxy.ui_interact(holder)
-
-/obj/item/integrated_circuit/input/virtual_joystick/do_work(ord)
-	if(ord == 1)
-		set_pin_data(IC_OUTPUT, 1, joystick_x)
-		set_pin_data(IC_OUTPUT, 2, joystick_y)
-		set_pin_data(IC_OUTPUT, 3, "[joystick_x];[joystick_y]")
-		push_data()
-		activate_pin(2)
-		return TRUE
-	return ..()

@@ -16,8 +16,8 @@ $knob-glow: 0px 0px 14px rgba(0, 229, 255, 0.9);
 
 .joystick-container {
   position: relative;
-  width: min(50vw, 50vh, 380px);
-  height: min(50vw, 50vh, 380px);
+  width: calc(100% - 20px);
+  aspect-ratio: 1;
   min-width: 150px;
   min-height: 150px;
   border: 2px solid $joystick-stroke;

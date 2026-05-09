@@ -4,22 +4,52 @@ import { Box } from 'tgui/components';
 import { Window } from 'tgui/layouts';
 import './VirtualJoystick.scss';
 
+const TRAIL_MAX_AGE = 250;
+const TRAIL_SAMPLE_MS = 50;
+const ACT_INTERVAL_MS = 50;
+const TRAIL_MIN_SPEED = 0.25;
+
 export class VirtualJoystick extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      knobX: 0,
-      knobY: 0,
-    };
+    this.state = { knobX: 0, knobY: 0 };
+
     this.trailPoints = [];
     this._animating = false;
+    this._dragActive = false;
+    this._lastTrailTime = 0;
+    this._lastMoveTime = 0;
+    this._lastActTime = 0;
+    this._lastTrailPos = { x: 0, y: 0 };
+
     this.canvasElement = null;
     this.containerRef = { current: null };
     this.ctxRef = {};
     this.trailTimeoutRef = {};
+
     this._mouseMoveHandler = null;
     this._mouseUpHandler = null;
-    this._dragActive = false;
+
+    this._pendingKnobX = 0;
+    this._pendingKnobY = 0;
+    this._rafId = null;
+
+    this._resizeObserver = null;
+    this._canvasSize = { width: 0, height: 0 };
+    this._setCanvasDimensions = (container) => {
+      const rect = container.getBoundingClientRect();
+      const w = Math.round(rect.width);
+      const h = Math.round(rect.height);
+      if (w !== this._canvasSize.width || h !== this._canvasSize.height) {
+        this._canvasSize.width = w;
+        this._canvasSize.height = h;
+        const canvas = this.canvasElement;
+        if (canvas) {
+          canvas.width = w;
+          canvas.height = h;
+        }
+      }
+    };
   }
 
   componentDidMount() {
@@ -34,9 +64,24 @@ export class VirtualJoystick extends Component {
         this.ctxRef.current = this.canvasElement.getContext('2d');
       }
     }
+
+    if (this.containerRef.current) {
+      this._setCanvasDimensions(this.containerRef.current);
+      this._resizeObserver = new ResizeObserver(() => {
+        if (this.containerRef.current) {
+          this._setCanvasDimensions(this.containerRef.current);
+        }
+      });
+      this._resizeObserver.observe(this.containerRef.current);
+    }
   }
 
   componentWillUnmount() {
+    if (this._resizeObserver) {
+      this._resizeObserver.disconnect();
+      this._resizeObserver = null;
+    }
+    if (this._rafId) cancelAnimationFrame(this._rafId);
     if (this.trailTimeoutRef.current) {
       cancelAnimationFrame(this.trailTimeoutRef.current);
       this.trailTimeoutRef.current = null;
@@ -52,6 +97,17 @@ export class VirtualJoystick extends Component {
     if (this.canvasElement) {
       this.canvasElement.remove();
       this.canvasElement = null;
+    }
+  }
+
+  _queueKnobUpdate(normX, normY) {
+    this._pendingKnobX = normX;
+    this._pendingKnobY = normY;
+    if (this._rafId === null) {
+      this._rafId = requestAnimationFrame(() => {
+        this._rafId = null;
+        this.setState({ knobX: this._pendingKnobX, knobY: this._pendingKnobY });
+      });
     }
   }
 
@@ -76,14 +132,21 @@ export class VirtualJoystick extends Component {
     const normX = dx / maxDist;
     const normY = dy / maxDist;
 
-    this.setState({ knobX: normX, knobY: normY });
-
     const now = Date.now();
-    this.trailPoints.push({ x: normX, y: normY, time: now });
-    this.trailPoints = this.trailPoints.filter(p => now - p.time < 300);
+    if (now - this._lastTrailTime >= TRAIL_SAMPLE_MS) {
+      this._lastTrailTime = now;
+      const speed = Math.hypot(normX - this._lastTrailPos.x, normY - this._lastTrailPos.y);
+      this._lastTrailPos = { x: normX, y: normY };
+      this.trailPoints.push({ x: normX, y: normY, time: now, speed: speed });
+    }
 
-    const { act } = useBackend(this.context);
-    act('update_position', { x: +normX.toFixed(2), y: +normY.toFixed(2) });
+    this._queueKnobUpdate(normX, normY);
+
+    if (now - this._lastActTime >= ACT_INTERVAL_MS) {
+      this._lastActTime = now;
+      const { act } = useBackend(this.context);
+      act('update_position', { x: +normX.toFixed(2), y: +normY.toFixed(2) });
+    }
 
     if (!this._animating) {
       this._animating = true;
@@ -96,10 +159,18 @@ export class VirtualJoystick extends Component {
     this._dragActive = true;
     this.updatePosition(e.clientX, e.clientY);
 
-    this._mouseMoveHandler = (e) => this.updatePosition(e.clientX, e.clientY);
+    this._mouseMoveHandler = (e) => {
+      const now = Date.now();
+      if (now - this._lastMoveTime < 16) return;
+      this._lastMoveTime = now;
+      this.updatePosition(e.clientX, e.clientY);
+    };
     this._mouseUpHandler = () => {
       this._dragActive = false;
       this.setState({ knobX: 0, knobY: 0 });
+      this._pendingKnobX = 0;
+      this._pendingKnobY = 0;
+      this._lastTrailPos = { x: 0, y: 0 };
       const { act } = useBackend(this.context);
       act('update_position', { x: 0, y: 0 });
       window.removeEventListener('mousemove', this._mouseMoveHandler);
@@ -120,14 +191,12 @@ export class VirtualJoystick extends Component {
       return;
     }
 
-    const width = container.clientWidth;
-    const height = container.clientHeight;
-    ctx.canvas.width = width;
-    ctx.canvas.height = height;
+    const width = this._canvasSize.width;
+    const height = this._canvasSize.height;
     ctx.clearRect(0, 0, width, height);
 
     const now = Date.now();
-    this.trailPoints = this.trailPoints.filter(p => now - p.time < 300);
+    this.trailPoints = this.trailPoints.filter(p => now - p.time < TRAIL_MAX_AGE);
     const points = this.trailPoints;
 
     if (points.length === 0) {
@@ -135,40 +204,24 @@ export class VirtualJoystick extends Component {
       return;
     }
 
-    if (points.length === 1) {
-      const p = points[0];
-      const opacity = 1 - (now - p.time) / 300;
+    const minDim = Math.min(width, height);
+    const minRadius = 0.1 * minDim;
+    const maxRadius = 0.15 * minDim;
+
+    for (const p of points) {
+      if (p.speed < TRAIL_MIN_SPEED) continue;
+
+      const age = (now - p.time) / TRAIL_MAX_AGE;
+      const opacity = 1 - age;
+      const radius = minRadius + (maxRadius - minRadius) * age;
       const x = (p.x * 40 + 50) / 100 * width;
       const y = (50 - p.y * 40) / 100 * height;
+
       ctx.beginPath();
-      ctx.arc(x, y, 2, 0, 2 * Math.PI);
-      ctx.fillStyle = `rgba(0, 229, 255, ${opacity})`;
-      ctx.fill();
-    } else {
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-      for (let i = 1; i < points.length; i++) {
-        const p1 = points[i - 1];
-        const p2 = points[i];
-        const age1 = now - p1.time;
-        const age2 = now - p2.time;
-        const opacity1 = Math.max(0, 1 - age1 / 300);
-        const opacity2 = Math.max(0, 1 - age2 / 300);
-        const x1 = (p1.x * 40 + 50) / 100 * width;
-        const y1 = (50 - p1.y * 40) / 100 * height;
-        const x2 = (p2.x * 40 + 50) / 100 * width;
-        const y2 = (50 - p2.y * 40) / 100 * height;
-        const lineWidth = Math.max(0.5, 3 * Math.min(opacity1, opacity2));
-        const gradient = ctx.createLinearGradient(x1, y1, x2, y2);
-        gradient.addColorStop(0, `rgba(0, 229, 255, ${opacity1})`);
-        gradient.addColorStop(1, `rgba(0, 229, 255, ${opacity2})`);
-        ctx.beginPath();
-        ctx.moveTo(x1, y1);
-        ctx.lineTo(x2, y2);
-        ctx.strokeStyle = gradient;
-        ctx.lineWidth = lineWidth;
-        ctx.stroke();
-      }
+      ctx.arc(x, y, radius, 0, 2 * Math.PI);
+      ctx.strokeStyle = `rgba(0, 229, 255, ${opacity})`;
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
     }
 
     if (points.length > 0 || this._dragActive) {

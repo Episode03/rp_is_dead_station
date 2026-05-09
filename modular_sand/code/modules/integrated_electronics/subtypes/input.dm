@@ -194,7 +194,7 @@
 			return
 
 		var/obj/item/integrated_circuit/input/mmi_tank/mmi_tank = mmi.loc
-		if(!(mmi_tank.assembly != assembly)) // The MMI must be in the same assembly as the button.
+		if(mmi_tank.assembly != assembly) // The MMI must be in the same assembly as the button.
 			return
 
 		if(!mmi.brainmob) // How did we get here?
@@ -207,7 +207,7 @@
 			return
 
 		var/obj/item/integrated_circuit/input/pAI_connector/pai_connector = paicard.loc
-		if(!(pai_connector.assembly != assembly)) // The pAI connector must be in the same assembly as the button.
+		if(pai_connector.assembly != assembly) // The pAI connector must be in the same assembly as the button.
 			return
 
 		if(!paicard.pai) // Please, don't do this, have a mob.

@@ -143,7 +143,6 @@
 		for(var/obj/O in target.contents)
 			actual_target = O
 			break
-	//
 
 	update_icon()
 	var/obj/item/projectile/A
@@ -161,8 +160,7 @@
 
 	if(ismob(loc.loc))
 		installed_gun.shoot_live_shot(loc.loc)
-	else
-		installed_gun.shoot_live_shot()
+
 	log_attack("[assembly] [REF(assembly)] has fired [installed_gun].")
 	return A
 

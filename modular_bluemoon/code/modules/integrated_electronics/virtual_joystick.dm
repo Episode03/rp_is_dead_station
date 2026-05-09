@@ -26,13 +26,16 @@
 
 /datum/virtual_joystick_proxy/ui_act(action, list/params, datum/tgui/ui)
 	if(..())
-		return
+		return TRUE
+	var/mob/user = ui?.user
+	if(!circuit || !user || !circuit.check_interactivity(user))
+		return TRUE
 	switch(action)
 		if("update_position")
 			var/nx = params["x"]
 			var/ny = params["y"]
 			if(!isnum(nx) || !isnum(ny))
-				return
+				return TRUE
 			circuit.joystick_x = round(clamp(nx, -1, 1), 0.01)
 			circuit.joystick_y = round(clamp(ny, -1, 1), 0.01)
 			// Data is being pushed on update
@@ -41,6 +44,7 @@
 			circuit.set_pin_data(IC_OUTPUT, 3, "[circuit.joystick_x];[circuit.joystick_y]")
 			circuit.push_data()
 			return TRUE
+	return FALSE
 
 /datum/virtual_joystick_proxy/ui_close(mob/user)
 	. = ..()
@@ -57,7 +61,7 @@
 
 /obj/item/integrated_circuit/input/virtual_joystick
 	name = "virtual joystick"
-	desc = "Маленькая сенсорная панель, симулирующая джойстики старого мира"
+	desc = "Small touchscreen panel that siimulates oldworld-style joysticks"
 	extended_desc = "Сенсорный джойстик, полезен для управления ДУ схемами. \
 	Положение джойстика выводится на выходные пины X и Y (числа от -1 до 1), \
 	а также в виде текста на пин combined. Координаты обновляются автоматически \

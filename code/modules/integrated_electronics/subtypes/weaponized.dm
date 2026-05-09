@@ -134,15 +134,9 @@
 	if(!shot)
 		return
 
-	//	Scan turf for a valid target
-	var/atom/actual_target = target
-	for(var/mob/living/M in target.contents)	// Prioritize mobs first
-		actual_target = M
-		break
-	if(actual_target == target)	// If no mobs located, attempt to locate an object
-		for(var/obj/O in target.contents)
-			actual_target = O
-			break
+	var/atom/actual_target = locate(/mob/living) in target.contents	// Attempt to set /mob as a target
+	actual_target ||= locate(/obj) in target.contents	// No mob on target turf, attempt to set /obj as a target
+	actual_target ||= target	// No mob or object located, use turf as a target
 
 	update_icon()
 	var/obj/item/projectile/A

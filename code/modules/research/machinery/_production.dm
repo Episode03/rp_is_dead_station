@@ -45,6 +45,9 @@
 	RegisterSignal(SSdcs, COMSIG_GLOB_RESEARCH_BATCH_COMPLETE, PROC_REF(on_research_batch_complete))
 
 /obj/machinery/rnd/production/Destroy()
+	if(deferred_sync_timer)
+		deltimer(deferred_sync_timer)
+		deferred_sync_timer = null
 	UnregisterSignal(SSdcs, list(COMSIG_GLOB_RESEARCH_NODE_UNLOCKED, COMSIG_GLOB_RESEARCH_BATCH_COMPLETE))
 	materials = null
 	cached_designs = null
@@ -433,9 +436,11 @@
 	SIGNAL_HANDLER
 	if(deferred_sync_timer)	// Если мы всё ещё в кулдауне, не делаем ничего - нет необходимости
 		return
-	deferred_sync_timer = addtimer(CALLBACK(src, PROC_REF(perform_deferred_sync)), 1.5 SECONDS)	// Синхронизация проводится после таймера, по совместительству очищая его и открывая гейт новым сигналам
+	deferred_sync_timer = addtimer(CALLBACK(src, PROC_REF(perform_deferred_sync)), 1.5 SECONDS, TIMER_STOPPABLE)	// Синхронизация проводится после таймера, по совместительству очищая его и открывая гейт новым сигналам
 
 /obj/machinery/rnd/production/proc/perform_deferred_sync()	// Временный фикс нагрузки сервера update_research() проками. Потом сделаю нормальный, минималистичный on_auto_sync для работы с единичными нодами
+	if(QDELETED(src))
+		return
 	deferred_sync_timer = null	// Проведение синхронизации происходит вместе с очисткой таймера
 	INVOKE_ASYNC(src, PROC_REF(update_research))	// Асинк в качестве второй защиты от обсёра, надеюсь даже после 100+ нод этого будет достаточно
 

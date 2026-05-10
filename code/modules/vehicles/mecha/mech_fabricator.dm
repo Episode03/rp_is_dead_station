@@ -68,6 +68,7 @@
 								"Savannah-Ivanov"
 								)
 	COOLDOWN_DECLARE(cooldown_say) // Отвечает за КД SAY машины
+	var/deferred_sync_timer	// Отвечает за кд перед автосинхронизацией, и не даёт упёршимся в него же сигналам изучений потеряться *temp*
 	var/const/cooldown_say_time = 1.5 SECONDS
 
 	var/on_station = TRUE
@@ -535,7 +536,13 @@
 
 /obj/machinery/mecha_part_fabricator/proc/on_node_unlocked(datum/source, node_id)	// Дизайны обновляются после изучения ноды на консоли
 	SIGNAL_HANDLER
-	INVOKE_ASYNC(src, PROC_REF(sync), TRUE, TRUE)	// ignore_timer = TRUE; Is_silent = TRUE
+	if(deferred_sync_timer)	// Если мы всё ещё в кулдауне, не делаем ничего - нет необходимости
+		return
+	deferred_sync_timer = addtimer(CALLBACK(src, PROC_REF(perform_deferred_sync)), 0.5 SECONDS)	// Синхронизация проводится после таймера, по совместительству очищая его и открывая гейт новым сигналам
+
+/obj/machinery/mecha_part_fabricator/proc/perform_deferred_sync()	// Временный фикс нагрузки сервера update_research() проками. Потом сделаю нормальный, минималистичный on_auto_sync для работы с единичными нодами
+	deferred_sync_timer = null	// Проведение синхронизации происходит вместе с очисткой таймера
+	INVOKE_ASYNC(src, PROC_REF(sync), TRUE, TRUE)	// Асинк в качестве второй защиты от обсёра, надеюсь даже после 100+ нод этого будет достаточно
 
 /obj/machinery/mecha_part_fabricator/proc/on_research_batch_complete(datum/source, list/node_ids)	// Регистрация сигнала о завершении упаковки пакета ID-шек
 	SIGNAL_HANDLER

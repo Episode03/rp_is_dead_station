@@ -352,8 +352,6 @@
 	var/list/surroundings = get_surroundings(user)
 	var/list/craftability = list()
 
-	var/start_time = world.timeofday
-
 	if(search_query && search_query != "")	// If we're currently using a search tab, use this check
 		for(var/rec in GLOB.crafting_recipes)
 			var/datum/crafting_recipe/R = rec
@@ -387,9 +385,6 @@
 			craftability["[REF(R)]"] = check_contents(user, R, surroundings)
 
 	data["craftability"] = craftability
-
-	var/elapsed = (world.timeofday - start_time)
-	message_admins("PERSONAL CRAFTING: search=[search_query] | recipes checked=[length(craftability)] | time=[elapsed] ms")
 
 	return data
 

@@ -329,9 +329,9 @@
 
 //For the UI related things we're going to assume the user is a mob rather than typesetting it to an atom as the UI isn't generated if the parent is an atom
 /datum/component/personal_crafting/ui_interact(mob/user, datum/tgui/ui)
-	search_query = ""	// reset query when window opens
 	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
+		search_query = ""	// this clears the query if a new UI window is made
 		cur_category = categories[1]
 		if(islist(categories[cur_category]))
 			var/list/subcats = categories[cur_category]

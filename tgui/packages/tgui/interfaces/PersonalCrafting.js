@@ -34,7 +34,7 @@ export class PersonalCrafting extends Component {
     const categories = this.getCategories(crafting_recipes);
     if (categories.length > 0 && !this.state.tab) {
       const firstCat = categories[0];
-      this.setState({ tab: firstCat.name });
+      this.setState({ tab: firstCat.id });
       act('set_category', {
         category: firstCat.category,
         subcategory: firstCat.subcategory,
@@ -58,10 +58,19 @@ export class PersonalCrafting extends Component {
       if ('has_subcats' in subcategories) {
         for (let subcategory of Object.keys(subcategories)) {
           if (subcategory === 'has_subcats') continue;
-          categories.push({ name: subcategory, category, subcategory });
+          categories.push({
+            id: `${category}::${subcategory}`,
+            name: subcategory,
+            category,
+            subcategory,
+          });
         }
       } else {
-        categories.push({ name: category, category });
+        categories.push({
+          id: `${category}::`,
+          name: category,
+          category,
+        });
       }
     }
     return categories;
@@ -76,13 +85,19 @@ export class PersonalCrafting extends Component {
           if (subcategory === 'has_subcats') continue;
           const _recipes = subcategories[subcategory];
           for (let recipe of _recipes) {
-            recipes.push({ ...recipe, category: subcategory });
+            recipes.push({
+              ...recipe,
+              tabId: `${category}::${subcategory}`,
+            });
           }
         }
       } else {
         const _recipes = crafting_recipes[category];
         for (let recipe of _recipes) {
-          recipes.push({ ...recipe, category });
+          recipes.push({
+            ...recipe,
+            tabId: `${category}::`,
+          });
         }
       }
     }
@@ -117,7 +132,7 @@ export class PersonalCrafting extends Component {
 
     const shownRecipes = isSearching
       ? []
-      : recipes.filter(recipe => recipe.category === tab);
+      : recipes.filter(recipe => recipe.tabId === tab);
 
     return (
       <Window title="Crafting Menu" width={700} height={800}>
@@ -188,10 +203,10 @@ export class PersonalCrafting extends Component {
                   <Tabs vertical>
                     {categories.map(category => (
                       <Tabs.Tab
-                        key={category.name}
-                        selected={category.name === tab}
+                        key={category.id}
+                        selected={category.id === tab}
                         onClick={() => {
-                          this.setState({ tab: category.name });
+                          this.setState({ tab: category.id });
                           act('set_category', {
                             category: category.category,
                             subcategory: category.subcategory,

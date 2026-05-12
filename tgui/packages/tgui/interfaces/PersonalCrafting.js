@@ -12,19 +12,16 @@ import {
 } from '../components';
 import { Window } from '../layouts';
 
-// Module‑level timer – cleared on unmount
-let searchTimer = null;
-
 export class PersonalCrafting extends Component {
   // Inferno class components need a contextType to use useBackend(this.context) outside of render. Setting it to the TGUI context makes it available.
   static contextType = window.__TGUI_CONTEXT__;
 
   constructor(props) {
     super(props);
+    this.searchTimer = null;
     this.state = {
       searchQuery: '',
       tab: '',
-      initialized: false,
     };
   }
 
@@ -43,17 +40,14 @@ export class PersonalCrafting extends Component {
         subcategory: firstCat.subcategory,
       });
     }
-
-    // Initial setup performed
-    this.setState({ initialized: true });
     act('search', { query: '' }); // In case ui_interact fails to clear the search tab, send a clear search request on mount
   }
 
   componentWillUnmount() {
     // Cancel any pending search timer when the window is closed.
-    if (searchTimer) {
-      clearTimeout(searchTimer);
-      searchTimer = null;
+    if (this.searchTimer) {
+      clearTimeout(this.searchTimer);
+      this.searchTimer = null;
     }
   }
 
@@ -150,9 +144,10 @@ export class PersonalCrafting extends Component {
                       value={searchQuery}
                       onInput={(e, value) => {
                         this.setState({ searchQuery: value });
-                        if (searchTimer) clearTimeout(searchTimer);
-                        searchTimer = setTimeout(() => {
-                          act('search', { query: value });
+                        if (this.searchTimer) clearTimeout(this.searchTimer);
+                        const trimmed = value.trim();
+                        this.searchTimer = setTimeout(() => {
+                          act('search', { query: trimmed });
                         }, 200);
                       }}
                     />
@@ -164,7 +159,7 @@ export class PersonalCrafting extends Component {
                       color="transparent"
                       onClick={() => {
                         this.setState({ searchQuery: '' });
-                        if (searchTimer) clearTimeout(searchTimer);
+                        if (this.searchTimer) clearTimeout(this.searchTimer);
                         act('search', { query: '' });
                       }}
                       tooltip="Clear search"

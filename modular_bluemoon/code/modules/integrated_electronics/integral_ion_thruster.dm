@@ -58,8 +58,9 @@
 				activate_pin(2)
 				return TRUE
 			else
-				set_pin_data(IC_OUTPUT, 1, WEAKREF(assembly.collw))
-				push_data()
+				if(assembly.collw)
+					set_pin_data(IC_OUTPUT, 1, WEAKREF(assembly.collw))
+					push_data()
 				activate_pin(3)
 				return FALSE
 	return FALSE

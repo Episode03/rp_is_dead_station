@@ -165,6 +165,10 @@ a creative player the means to solve many problems.  Circuits are held inside an
 			input = name
 		to_chat(M, "<span class='notice'>The circuit '[name]' is now labeled '[input]'.</span>")
 		displayed_name = input
+		on_rename()
+
+/obj/item/integrated_circuit/proc/on_rename()	// Triggered on circuit name change from both UI types. Override for if you need to react to that.
+	return
 
 /obj/item/integrated_circuit/interact(mob/user)
 	if(user?.client?.prefs?.ie_classic_circuit_ui)

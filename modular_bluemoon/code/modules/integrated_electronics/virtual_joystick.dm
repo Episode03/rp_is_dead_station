@@ -15,7 +15,7 @@
 		return
 	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
-		ui = new(user, src, "VirtualJoystick")
+		ui = new(user, src, "VirtualJoystick", circuit.displayed_name || "Virtual Joystick")
 		ui.window_key = "VirtualJoystick-[REF(circuit)]"
 		ui.open()
 
@@ -96,6 +96,17 @@
 /obj/item/integrated_circuit/input/virtual_joystick/ext_moved(oldLoc, dir)	// update window on assembly movement (in space, between hands)
 	. = ..()
 	update_joystick_window()
+
+/obj/item/integrated_circuit/input/virtual_joystick/on_rename()
+	. = ..()
+	var/new_title = displayed_name || "Virtual Joystick"
+	for(var/mob/user in current_proxies.Copy())
+		var/datum/virtual_joystick_proxy/proxy = current_proxies[user]
+		var/datum/tgui/ui = SStgui.get_open_ui(user, proxy)
+		if(!ui)
+			continue
+		ui.title = new_title
+		SStgui.update_user_uis(user, proxy)	// Force title refresh
 
 /obj/item/integrated_circuit/input/virtual_joystick/proc/update_joystick_window()
 	var/atom/movable/object = get_object()

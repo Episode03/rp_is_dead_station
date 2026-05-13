@@ -4671,6 +4671,8 @@
 #include "modular_bluemoon\code\modules\hilbertshotel\hilbertshotel.dm"
 #include "modular_bluemoon\code\modules\hilbertshotel\hotel_room_templates.dm"
 #include "modular_bluemoon\code\modules\hydroponics\grown\herbs.dm"
+#include "modular_bluemoon\code\modules\integrated_electronics\integral_integrity_analyzer.dm"
+#include "modular_bluemoon\code\modules\integrated_electronics\integral_relative_coordfinder.dm"
 #include "modular_bluemoon\code\modules\integrated_electronics\integral_user.dm"
 #include "modular_bluemoon\code\modules\integrated_electronics\integral_gravity_sensor.dm"
 #include "modular_bluemoon\code\modules\integrated_electronics\integral_ion_thruster.dm"

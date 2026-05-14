@@ -455,6 +455,7 @@ Burning extracts:
 	throw_speed = 2
 	attack_verb = list("bashed","pounded","slammed")
 	item_flags = SLOWS_WHILE_IN_HAND
+	slowdown = 2
 
 /obj/item/shield/adamantineshield/ComponentInitialize()
 	. = ..()

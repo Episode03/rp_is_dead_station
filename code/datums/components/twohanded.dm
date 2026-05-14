@@ -110,6 +110,9 @@
 	if(!user.is_holding(parent))
 		return			//give no quarter to telekinesis powergaemrs (telekinetic wielding will desync the offhand and result in all sorts of bugs so no until someone codes it properly)
 	if(wielded)
+		if(require_twohands)
+			to_chat(user, "<span class='notice'>[parent] is too cumbersome to carry in one hand!</span>")
+			return
 		unwield(user)
 	else
 		wield(user)

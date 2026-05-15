@@ -15,6 +15,8 @@
 
 /mob/living/silicon/robot/death(gibbed)
 	if(stat == DEAD)
+		if(gibbed)
+			dump_into_mmi()
 		return
 	if(gibbed)
 		dump_into_mmi()

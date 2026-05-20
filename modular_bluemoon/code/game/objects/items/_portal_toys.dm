@@ -921,6 +921,21 @@ GLOBAL_VAR_INIT(portal_telecomms_cache_expire, 0)
 		return equipment.get_wearer()
 	return null
 
+/obj/item/clothing/underwear/briefs/panties/portalpanties/proc/death_disconnect()	// Копия процедуры смены режима на PORTAL_MODE_DISABLED, активируется сигналом COMSIG_LIVING_DEATH
+	if(!portal_settings)
+		return
+	portal_settings.connection_mode = PORTAL_MODE_DISABLED
+	notify_all_connected("Аномальные показатели биометрии партнёра. Автоматический разрыв связи.")
+	for(var/obj/item/portallight/PL in portallight)
+		unregister_remote_vibration(PL)
+		PL.portalunderwear = null
+		PL.icon_state = "unpaired"
+		PL.update_appearance()
+		playsound(PL, 'sound/machines/buzz-sigh.ogg', 50, FALSE)
+	LAZYCLEARLIST(portallight)
+	LAZYCLEARLIST(remote_vibrations)  // Clear any orphaned remote vibrations
+	private_pair = null
+
 /obj/item/clothing/underwear/briefs/panties/portalpanties/proc/trigger_safeword(mob/living/carbon/human/user)
 	// Instantly disconnect all connections
 	to_chat(user, span_warning("СТОП-СЛОВО АКТИВИРОВАНО! Все соединения разорваны."))
@@ -1538,7 +1553,7 @@ GLOBAL_VAR_INIT(portal_telecomms_cache_expire, 0)
 			PL.update_appearance()
 			playsound(PL, 'sound/machines/buzz-sigh.ogg', 50, FALSE)
 			return TRUE
-		if("disconnect_all")
+		if("disconnect_all")	//
 			// Notify all before clearing
 			for(var/obj/item/portallight/PL in portallight)
 				var/mob/living/carbon/human/holder = get_fleshlight_holder(PL)

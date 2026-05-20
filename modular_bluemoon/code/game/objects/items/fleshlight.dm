@@ -475,6 +475,7 @@ GLOBAL_LIST_EMPTY(public_portal_panties)
 			portal_settings?.owner = user
 			START_PROCESSING(SSfastprocess, src)
 			RegisterSignal(user, COMSIG_MOVABLE_HEAR, PROC_REF(on_owner_hear), override = TRUE)
+			RegisterSignal(user, COMSIG_LIVING_DEATH, PROC_REF(death_disconnect))
 			// Grant control action for worn panties
 			if(!worn_control_action)
 				worn_control_action = new /datum/action/portal_device_control(src)
@@ -489,10 +490,13 @@ GLOBAL_LIST_EMPTY(public_portal_panties)
 					var/mob/living/carbon/human/holder = get_fleshlight_holder(PL)
 					if(holder)
 						to_chat(holder, span_notice("Портальные трусики надеты снова — соединение восстановлено."))
+	else
+		UnregisterSignal(user, COMSIG_LIVING_DEATH)	// portalpanties экипированы куда-то кроме слота (условно, в руку)
 
 /obj/item/clothing/underwear/briefs/panties/portalpanties/dropped(mob/user)
 	. = ..()
 	UnregisterSignal(user, COMSIG_MOVABLE_HEAR)
+	UnregisterSignal(user, COMSIG_LIVING_DEATH)
 	// Suspend (not destroy) connection on undress - reconnects automatically when re-equipped
 	if(LAZYLEN(portallight))
 		for(var/obj/item/portallight/PL in portallight)
@@ -654,6 +658,7 @@ GLOBAL_LIST_EMPTY(public_portal_panties)
 		register_climax_signal(G.owner)
 		// Register for safeword hearing
 		RegisterSignal(G.owner, COMSIG_MOVABLE_HEAR, PROC_REF(on_owner_hear), override = TRUE)
+		RegisterSignal(G.owner, COMSIG_LIVING_DEATH, PROC_REF(death_disconnect))
 		portal_settings?.owner = G.owner
 		START_PROCESSING(SSfastprocess, src)
 	return TRUE
@@ -686,6 +691,7 @@ GLOBAL_LIST_EMPTY(public_portal_panties)
 	if(G.owner)
 		unregister_climax_signal(G.owner)
 		UnregisterSignal(G.owner, COMSIG_MOVABLE_HEAR)
+		UnregisterSignal(G.owner, COMSIG_LIVING_DEATH)
 		portal_settings?.owner = null
 		STOP_PROCESSING(SSfastprocess, src)
 	if(inserted_control_action)

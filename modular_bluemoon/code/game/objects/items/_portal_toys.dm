@@ -1553,7 +1553,7 @@ GLOBAL_VAR_INIT(portal_telecomms_cache_expire, 0)
 			PL.update_appearance()
 			playsound(PL, 'sound/machines/buzz-sigh.ogg', 50, FALSE)
 			return TRUE
-		if("disconnect_all")	//
+		if("disconnect_all")
 			// Notify all before clearing
 			for(var/obj/item/portallight/PL in portallight)
 				var/mob/living/carbon/human/holder = get_fleshlight_holder(PL)

@@ -476,11 +476,8 @@
 	if(emagged)
 		QDEL_NULL(mmi)
 		explosion(loc,1,2,4,flame_range = 2)
-		gib()
-		return
-	explosion(loc,-1,0,2)
-	if(stat == DEAD)
-		death(1)	// self destruction of a borg that was already dead bypassed death() proc, preventing it from dropping mmi.
+	else
+		explosion(loc,-1,0,2)
 	gib()
 
 /mob/living/silicon/robot/proc/UnlinkSelf()

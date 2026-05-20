@@ -479,7 +479,8 @@
 		gib()
 		return
 	explosion(loc,-1,0,2)
-	death(1)
+	if(stat == DEAD)
+		death(1)	// self destruction of a borg that was already dead bypassed death() proc, preventing it from dropping mmi.
 	gib()
 
 /mob/living/silicon/robot/proc/UnlinkSelf()
